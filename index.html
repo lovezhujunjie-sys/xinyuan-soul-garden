@@ -107,6 +107,25 @@
   .care-note{margin-top:16px;font-size:12px;color:var(--muted);background:rgba(251,191,119,.12);
     border:1px solid rgba(251,191,119,.28);border-radius:12px;padding:10px 13px;line-height:1.6}
 
+  /* 跟练计时器 overlay */
+  .player{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:24px;
+    background:rgba(15,16,35,.78);backdrop-filter:blur(8px)}
+  .player.show{display:flex;animation:fade .3s ease}
+  .player-card{background:linear-gradient(160deg,rgba(45,42,82,.96),rgba(26,31,58,.96));border:1px solid var(--card-br);
+    border-radius:26px;padding:26px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+  .pl-title{font-size:21px;font-weight:600}
+  .pl-sub{color:var(--muted);font-size:13px;margin-top:6px;min-height:18px}
+  .pl-ring-wrap{position:relative;width:200px;height:200px;margin:18px auto 8px}
+  .pl-svg{width:200px;height:200px;transform:rotate(-90deg)}
+  .pl-track{fill:none;stroke:rgba(255,255,255,.10);stroke-width:8}
+  .pl-prog{fill:none;stroke:var(--accent2);stroke-width:8;stroke-linecap:round;stroke-dasharray:326.7;stroke-dashoffset:0;
+    filter:drop-shadow(0 0 8px var(--glow))}
+  .pl-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:600;font-variant-numeric:tabular-nums}
+  .pl-ctrls{display:flex;gap:10px;justify-content:center;margin-top:4px}
+  .pl-toggles{display:flex;gap:10px;justify-content:center;margin-top:14px}
+  .pl-tog{font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--card-br);background:rgba(255,255,255,.05);cursor:pointer;color:var(--muted);user-select:none}
+  .pl-tog.on{color:var(--accent);border-color:transparent;background:rgba(167,139,250,.2)}
+
   /* nav */
   .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(20,22,45,.85);backdrop-filter:blur(18px);
     border-top:1px solid var(--card-br);display:flex;max-width:560px;margin:0 auto}
@@ -202,6 +221,30 @@
   <button data-v="care" onclick="go('care')"><span class="ic">🌿</span>养护</button>
   <button data-v="community" onclick="go('community')"><span class="ic">💞</span>社区</button>
 </nav>
+
+<!-- 跟练计时器 -->
+<div class="player" id="player">
+  <div class="player-card">
+    <div class="pl-title" id="plTitle">跟练</div>
+    <div class="pl-sub" id="plSub"></div>
+    <div class="pl-ring-wrap">
+      <svg class="pl-svg" viewBox="0 0 120 120">
+        <circle class="pl-track" cx="60" cy="60" r="52"></circle>
+        <circle class="pl-prog" id="plRing" cx="60" cy="60" r="52"></circle>
+      </svg>
+      <div class="pl-num" id="plNum">0</div>
+    </div>
+    <div class="pl-ctrls">
+      <button class="btn" id="plPause" onclick="plTogglePause()">暂停</button>
+      <button class="btn" id="plNext" onclick="plNext()">下一个 ›</button>
+    </div>
+    <div class="pl-toggles">
+      <span class="pl-tog on" id="plSound" onclick="plToggle('sound')">🔔 提示音</span>
+      <span class="pl-tog on" id="plVoice" onclick="plToggle('voice')">🗣 语音引导</span>
+    </div>
+    <button class="btn full" onclick="closePlayer()" style="margin-top:14px">结束</button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -387,29 +430,30 @@ function renderFeed(){
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
 /* ---------- care 养护:拉伸 / 养胃 / 助眠 ---------- */
+/* sec=带计时跟练的秒数;say=语音引导词(省略则念标题) */
 const CARE={
-  stretch:{name:'🧘 拉伸放松',intro:'久坐后或睡前都适合。动作放慢、配合呼吸，停留时轻轻呼气，不追求幅度，感到舒展即可。',items:[
-    {t:'颈部舒展',d:'缓慢低头让下巴靠近胸口停 15 秒；再把头轻轻倒向左右肩各 15 秒，松开伏案一天的脖颈。'},
-    {t:'肩部绕环',d:'双肩向后画大圈 10 次，再向前 10 次，配合深呼吸，化开僵硬的肩背。'},
-    {t:'猫牛式',d:'四肢着地，吸气塌腰抬头（牛），呼气拱背低头（猫），来回 8 次，温柔唤醒脊柱。'},
-    {t:'坐姿前屈',d:'坐直、双腿伸直，呼气慢慢向前倾，手伸向脚尖（够不到也没关系），停 20 秒，放松后背与腿后侧。'},
-    {t:'婴儿式',d:'跪坐后上身前趴，额头贴地、双臂前伸，深呼吸 1 分钟，让全身慢慢沉下来。'},
-    {t:'靠墙抬腿',d:'仰躺把双腿靠墙抬高成 90°，停 3–5 分钟，缓解腿部疲劳、帮身体进入放松。'},
+  stretch:{name:'🧘 拉伸放松',intro:'久坐后或睡前都适合。动作放慢、配合呼吸，停留时轻轻呼气，不追求幅度，感到舒展即可。点「跟练」会有倒计时 + 提示音 + 语音引导。',items:[
+    {t:'颈部舒展',d:'缓慢低头让下巴靠近胸口停 15 秒；再把头轻轻倒向左右肩各 15 秒，松开伏案一天的脖颈。',sec:45,say:'颈部舒展，缓慢转动，跟随呼吸，松开脖颈'},
+    {t:'肩部绕环',d:'双肩向后画大圈 10 次，再向前 10 次，配合深呼吸，化开僵硬的肩背。',sec:30,say:'肩部绕环，向后再向前，放松肩背'},
+    {t:'猫牛式',d:'四肢着地，吸气塌腰抬头（牛），呼气拱背低头（猫），来回 8 次，温柔唤醒脊柱。',sec:40,say:'猫牛式，吸气抬头，呼气拱背，唤醒脊柱'},
+    {t:'坐姿前屈',d:'坐直、双腿伸直，呼气慢慢向前倾，手伸向脚尖（够不到也没关系），停 20 秒，放松后背与腿后侧。',sec:30,say:'坐姿前屈，呼气慢慢向前，放松后背'},
+    {t:'婴儿式',d:'跪坐后上身前趴，额头贴地、双臂前伸，深呼吸 1 分钟，让全身慢慢沉下来。',sec:60,say:'婴儿式，额头贴地，深呼吸，让全身沉下来'},
+    {t:'靠墙抬腿',d:'仰躺把双腿靠墙抬高成 90°，停 3–5 分钟，缓解腿部疲劳、帮身体进入放松。',sec:180,say:'靠墙抬腿，什么都不用做，只是呼吸放松'},
   ]},
   stomach:{name:'🍵 温和养胃',intro:'养胃靠的是日常小习惯，而不是偶尔进补。从下面挑一两条先做起来。',note:'若持续胃痛、反酸或不适，请及时就医。以下仅为温和的日常生活建议，不替代医疗。',items:[
     {t:'细嚼慢咽',d:'每口咀嚼 20 次以上，给胃减负，也更容易感到饱足、不过量。'},
     {t:'温水温食',d:'少喝冰饮；早晨一杯温水唤醒肠胃。饭吃七八分饱即可，别撑。'},
     {t:'规律三餐',d:'尽量定时吃饭，别让胃长时间空着，也别暴饮暴食。'},
     {t:'睡前 3 小时不进食',d:'给肠胃留出休息时间，胃轻松了，也睡得更安稳。'},
-    {t:'顺时针揉腹',d:'饭后半小时，手掌贴肚脐周围顺时针轻揉 3–5 分钟，帮助消化。'},
+    {t:'顺时针揉腹',d:'饭后半小时，手掌贴肚脐周围顺时针轻揉 3–5 分钟，帮助消化。',sec:180,say:'顺时针揉腹，轻柔地画圈，帮助消化'},
     {t:'温和食物',d:'小米粥、南瓜、山药、蒸蛋等温软食物对胃友好；辛辣、油腻、浓茶咖啡适量就好。'},
   ]},
   sleep:{name:'🌙 助眠安神',intro:'睡前 1 小时开始，给身体一连串「该休息了」的信号，入睡会自然很多。',items:[
     {t:'调暗灯光',d:'睡前 1 小时把灯调暖调暗，少看手机蓝光，让身体开始分泌睡意。'},
     {t:'安眠 4-6 呼吸',d:'吸气 4 秒、呼气 6 秒，延长呼气来安抚神经，做 5–10 轮。',act:'<button class="btn full" style="margin-top:10px" onclick="breathFor(2)">去做安眠 4-6 呼吸 →</button>'},
-    {t:'身体扫描',d:'仰躺，从脚趾到头顶，逐个部位默念「放松、放下」，常常没扫完就睡着了。'},
+    {t:'身体扫描',d:'仰躺，从脚趾到头顶，逐个部位默念「放松、放下」，常常没扫完就睡着了。',sec:180,say:'身体扫描，从脚趾到头顶，逐个部位放松、放下'},
     {t:'写下牵挂',d:'把明天要做的事、心里的念头写在纸上交出去，大脑就不必反复提醒你。'},
-    {t:'温水泡脚',d:'睡前用约 40℃ 温水泡脚 10–15 分钟，暖身、促进循环、帮助入睡。'},
+    {t:'温水泡脚',d:'睡前用约 40℃ 温水泡脚 10–15 分钟，暖身、促进循环、帮助入睡。',sec:600,say:'泡脚时间，放松，感受脚下的温暖'},
     {t:'固定作息',d:'尽量同一时间上床和起床，周末也别差太多，生物钟会回报你。'},
   ]},
 };
@@ -418,14 +462,62 @@ function renderCareTabs(){
   document.getElementById('careTabs').innerHTML=Object.entries(CARE).map(([k,v])=>`<div class="pill ${k===careCat?'on':''}" onclick="pickCare('${k}')">${v.name}</div>`).join('');
 }
 function pickCare(k){careCat=k;renderCareTabs();renderCareBody()}
+function fmtSec(s){return s>=60?(s%60?Math.floor(s/60)+'分'+(s%60)+'秒':Math.floor(s/60)+'分钟'):s+'秒'}
 function renderCareBody(){
   const c=CARE[careCat];
   let html=`<div class="care-intro">${c.intro}</div>`;
-  html+=c.items.map((it,i)=>`<div class="care-item"><div class="ci-no">${i+1}</div><div><div class="ci-t">${it.t}</div><div class="ci-d">${it.d}</div>${it.act||''}</div></div>`).join('');
+  const timed=c.items.filter(x=>x.sec).length;
+  if(careCat==='stretch'&&timed>0)html+=`<button class="btn primary full" style="margin:0 0 6px" onclick="startCareSeq('stretch')">▶ 跟练全套（${timed} 个动作）</button>`;
+  html+=c.items.map((it,i)=>`<div class="care-item"><div class="ci-no">${i+1}</div><div style="flex:1">
+    <div class="ci-t">${it.t}</div><div class="ci-d">${it.d}</div>
+    ${it.sec?`<button class="btn" style="margin-top:10px" onclick="playOne('${careCat}',${i})">▶ 跟练 ${fmtSec(it.sec)}</button>`:''}${it.act||''}</div></div>`).join('');
   if(c.note)html+=`<div class="care-note">⚕ ${c.note}</div>`;
   document.getElementById('careBody').innerHTML=html;
 }
 function breathFor(i){go('breath');pickBreath(i)}
+
+/* ---------- 跟练计时器(倒计时环 + 提示音 + 语音,纯前端零依赖) ---------- */
+const RING_C=326.7;   // 2π·52
+const PL={list:[],idx:0,totalMs:0,leftMs:0,last:0,raf:0,paused:false,sound:true,voice:true,ac:null};
+function plAudio(){try{if(!PL.ac)PL.ac=new (window.AudioContext||window.webkitAudioContext)();if(PL.ac.state==='suspended')PL.ac.resume();}catch(e){}return PL.ac}
+function chime(freq,dur){if(!PL.sound)return;const ac=plAudio();if(!ac)return;try{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=freq;o.connect(g);g.connect(ac.destination);const t=ac.currentTime;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.04);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.start(t);o.stop(t+dur+.02)}catch(e){}}
+function speak(text){if(!PL.voice||!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.92;u.pitch=1;speechSynthesis.speak(u)}catch(e){}}
+function setRing(frac){document.getElementById('plRing').style.strokeDashoffset=RING_C*(1-Math.max(0,Math.min(1,frac)))}
+function playOne(cat,i){openPlayer([CARE[cat].items[i]])}
+function startCareSeq(cat){openPlayer(CARE[cat].items.filter(x=>x.sec))}
+function openPlayer(list){
+  if(!list.length)return;PL.list=list;PL.idx=0;PL.paused=false;
+  document.getElementById('player').classList.add('show');
+  plAudio();runStep();
+}
+function runStep(){
+  const it=PL.list[PL.idx];if(!it){closePlayer(true);return}
+  PL.totalMs=it.sec*1000;PL.leftMs=PL.totalMs;PL.last=performance.now();PL.paused=false;
+  document.getElementById('plTitle').textContent=it.t;
+  document.getElementById('plSub').textContent=PL.list.length>1?`第 ${PL.idx+1} / ${PL.list.length} 个 · 跟随呼吸`:'跟随呼吸，别勉强';
+  document.getElementById('plPause').textContent='暂停';
+  document.getElementById('plNext').style.visibility=PL.list.length>1?'visible':'hidden';
+  setRing(1);document.getElementById('plNum').textContent=it.sec;
+  chime(528,.5);speak(it.say||it.t);
+  cancelAnimationFrame(PL.raf);PL.raf=requestAnimationFrame(plFrame);
+}
+function plFrame(now){
+  const dt=now-PL.last;PL.last=now;
+  if(!PL.paused)PL.leftMs-=dt;
+  const left=Math.max(0,PL.leftMs);
+  document.getElementById('plNum').textContent=Math.ceil(left/1000);
+  setRing(left/PL.totalMs);
+  if(left<=0){chime(660,.7);plAdvance();return}
+  PL.raf=requestAnimationFrame(plFrame);
+}
+function plAdvance(){
+  if(PL.idx+1<PL.list.length){PL.idx++;setTimeout(()=>{if(document.getElementById('player').classList.contains('show'))runStep()},800)}
+  else{document.getElementById('plTitle').textContent='很好 🌿';document.getElementById('plSub').textContent='完成了，感受身体的放松';speak('很好，完成了，感受身体的放松');setTimeout(()=>closePlayer(false),1500)}
+}
+function plTogglePause(){PL.paused=!PL.paused;PL.last=performance.now();document.getElementById('plPause').textContent=PL.paused?'继续':'暂停';try{PL.paused?speechSynthesis.pause():speechSynthesis.resume()}catch(e){}}
+function plNext(){cancelAnimationFrame(PL.raf);chime(660,.4);plAdvance()}
+function plToggle(k){PL[k]=!PL[k];document.getElementById(k==='sound'?'plSound':'plVoice').classList.toggle('on',PL[k]);if(k==='voice'&&!PL.voice){try{speechSynthesis.cancel()}catch(e){}}}
+function closePlayer(){cancelAnimationFrame(PL.raf);try{speechSynthesis.cancel()}catch(e){}document.getElementById('player').classList.remove('show')}
 
 /* ---------- init ---------- */
 initDaily();renderBreathModes();renderMoodGrid();renderMoodLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
