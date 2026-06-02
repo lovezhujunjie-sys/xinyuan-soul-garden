@@ -64,6 +64,16 @@
   .pill-row{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
   .pill{padding:8px 16px;border-radius:999px;font-size:13px;cursor:pointer;border:1px solid var(--card-br);background:rgba(255,255,255,.06);transition:.2s}
   .pill.on{background:linear-gradient(135deg,var(--accent),#7c5cff);border-color:transparent}
+  /* ambient soundscape */
+  .amb-box{margin-top:20px;padding-top:16px;border-top:1px solid var(--card-br)}
+  .amb-title{font-size:14px;color:var(--text);margin-bottom:10px;text-align:center}
+  .amb-hint{font-size:11px;color:var(--accent2);background:rgba(125,211,192,.16);padding:2px 9px;border-radius:999px;margin-left:6px;vertical-align:1px}
+  .amb-vol{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:14px}
+  .amb-vol span{font-size:14px;opacity:.8}
+  .amb-vol input[type=range]{-webkit-appearance:none;appearance:none;width:160px;height:4px;border-radius:999px;background:rgba(255,255,255,.18);cursor:pointer}
+  .amb-vol input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 2px 6px var(--glow)}
+  .amb-vol input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  .pill.amb.on{background:linear-gradient(135deg,var(--accent2),#5fb8a3);border-color:transparent;color:#0f2b25}
 
   /* mood */
   .mood-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0 14px}
@@ -116,6 +126,38 @@
   .cm-k{display:inline-block;font-size:11px;color:var(--accent2);background:rgba(125,211,192,.16);padding:1px 9px;border-radius:999px;margin-right:8px;vertical-align:1px}
   .care-note{margin-top:16px;font-size:12px;color:var(--muted);background:rgba(251,191,119,.12);
     border:1px solid rgba(251,191,119,.28);border-radius:12px;padding:10px 13px;line-height:1.6}
+
+  /* 感恩日记 三件好事 */
+  .grat-input{margin:8px 0}
+  .grat-input input{margin:0}
+  .grat-num{display:inline-block;width:20px;color:var(--accent3);font-size:13px}
+  .grat-entry{padding:12px 0;border-top:1px solid var(--card-br)}
+  .grat-entry small{color:var(--muted);font-size:11px;letter-spacing:1px}
+  .grat-entry ul{margin:6px 0 0;padding-left:4px;list-style:none}
+  .grat-entry li{font-size:14px;line-height:1.6;margin:4px 0;padding-left:20px;position:relative}
+  .grat-entry li::before{content:'🌼';position:absolute;left:0;font-size:12px}
+
+  /* 成长:打卡 + 可视化 */
+  .grow-streak{text-align:center;background:linear-gradient(135deg,rgba(251,191,119,.22),rgba(167,139,250,.18));padding:26px 20px}
+  .grow-flame{font-size:46px;line-height:1}
+  .grow-num{font-size:40px;font-weight:700;margin:2px 0;font-variant-numeric:tabular-nums}
+  .grow-cap{color:var(--muted);font-size:13px;letter-spacing:1px}
+  .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:6px}
+  .stat{background:rgba(255,255,255,.05);border:1px solid var(--card-br);border-radius:16px;padding:14px 12px;text-align:center}
+  .stat .v{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+  .stat .k{font-size:12px;color:var(--muted);margin-top:3px;letter-spacing:1px}
+  .heat{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;margin:10px 2px 6px}
+  .heat i{aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.06)}
+  .heat i.l1{background:rgba(125,211,192,.30)}
+  .heat i.l2{background:rgba(125,211,192,.55)}
+  .heat i.l3{background:rgba(167,139,250,.70)}
+  .heat i.l4{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 0 6px var(--glow)}
+  .heat-legend{display:flex;align-items:center;justify-content:flex-end;gap:6px;font-size:11px;color:var(--muted)}
+  .heat-legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .trend svg{width:100%;height:120px;display:block;margin-top:6px}
+  .trend .ln{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 2px 6px var(--glow))}
+  .trend .ar{fill:url(#trendGrad);opacity:.5}
+  .trend .dot{fill:var(--accent2)}
 
   /* 跟练计时器 overlay */
   .player{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:24px;
@@ -185,6 +227,15 @@
       <div class="breath-meta" id="breathMeta">选择节奏，跟随圆圈一呼一吸</div>
       <div class="pill-row" id="breathModes"></div>
       <button class="btn primary full" id="breathBtn" onclick="toggleBreath()">开始</button>
+      <div class="amb-box">
+        <div class="amb-title">🎧 冥想音景 <span class="amb-hint">边呼吸边听</span></div>
+        <div class="pill-row" id="ambPills"></div>
+        <div class="amb-vol">
+          <span>🔈</span>
+          <input type="range" id="ambVol" min="0" max="1" step="0.01" value="0.5" oninput="Ambient.setVolume(this.value)">
+          <span>🔊</span>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -199,6 +250,45 @@
     <div class="card">
       <div class="section-title">心情足迹</div>
       <div id="moodLog" class="mood-log"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">三件好事 · 今日感恩 🌼</div>
+      <div class="care-intro" style="margin:0 0 10px">睡前写下今天三件值得感恩的小事——一杯热茶、一句问候、一缕阳光都算。日积月累，会慢慢看见生活的丰盛。</div>
+      <div class="grat-input"><span class="grat-num">1.</span><input id="grat1" maxlength="60" placeholder="第一件好事…"/></div>
+      <div class="grat-input"><span class="grat-num">2.</span><input id="grat2" maxlength="60" placeholder="第二件好事…"/></div>
+      <div class="grat-input"><span class="grat-num">3.</span><input id="grat3" maxlength="60" placeholder="第三件好事…"/></div>
+      <button class="btn primary full" onclick="saveGratitude()">收下今天的感恩</button>
+    </div>
+    <div class="card">
+      <div class="section-title">幸福账本</div>
+      <div id="gratLog"></div>
+    </div>
+  </section>
+
+  <!-- ========== 成长:打卡 + 可视化 ========== -->
+  <section class="view" id="view-grow">
+    <div class="card grow-streak">
+      <div class="grow-flame">🔥</div>
+      <div class="grow-num" id="streakNum">0</div>
+      <div class="grow-cap" id="streakCap">连续修行 0 天</div>
+    </div>
+    <div class="card">
+      <div class="section-title">点滴累积</div>
+      <div class="stat-grid">
+        <div class="stat"><div class="v" id="stBreath">0</div><div class="k">🌬 呼吸轮数</div></div>
+        <div class="stat"><div class="v" id="stMood">0</div><div class="k">📿 心情记录</div></div>
+        <div class="stat"><div class="v" id="stCare">0</div><div class="k">🌿 跟练完成</div></div>
+        <div class="stat"><div class="v" id="stGrat">0</div><div class="k">🌼 感恩条数</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">修行足迹 · 近 12 周</div>
+      <div class="heat" id="heat"></div>
+      <div class="heat-legend">少 <i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i> 多</div>
+    </div>
+    <div class="card trend">
+      <div class="section-title">心情趋势 · 最近记录</div>
+      <div id="trend"></div>
     </div>
   </section>
 
@@ -229,6 +319,7 @@
   <button data-v="breath" onclick="go('breath')"><span class="ic">🌬</span>呼吸</button>
   <button data-v="mood" onclick="go('mood')"><span class="ic">📿</span>心情</button>
   <button data-v="care" onclick="go('care')"><span class="ic">🌿</span>养护</button>
+  <button data-v="grow" onclick="go('grow')"><span class="ic">🌱</span>成长</button>
   <button data-v="community" onclick="go('community')"><span class="ic">💞</span>社区</button>
 </nav>
 
@@ -272,6 +363,8 @@ function go(v){
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  if(v!=='breath'){Ambient.stop();renderAmbPills();}
+  if(v==='grow')renderGrow();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -364,6 +457,7 @@ function runPhase(pi){
 }
 function stopBreath(){
   breathRunning=false;clearInterval(breathTimer);
+  if(breathCount>0)logActivity('breath',breathCount);
   const c=document.getElementById('breathCircle');
   c.classList.remove('run','inhale','exhale');c.style.transitionDuration='4s';
   document.getElementById('breathLbl').textContent='很好';
@@ -385,7 +479,7 @@ function saveMood(){
   log.unshift({emo:moodSel,note,ts:Date.now()});
   DB.set('mood',log);
   moodSel=null;document.getElementById('moodNote').value='';
-  renderMoodGrid();renderMoodLog();toast('已记录此刻 🌸');
+  logActivity('mood');renderMoodGrid();renderMoodLog();toast('已记录此刻 🌸');
 }
 function renderMoodLog(){
   const log=DB.get('mood',[]);
@@ -456,6 +550,16 @@ const CARE={
     {t:'坐姿前屈',d:'坐直、双腿伸直，呼气慢慢向前倾，手伸向脚尖（够不到也没关系），停 20 秒，放松后背与腿后侧。',sec:30,say:'坐姿前屈，呼气慢慢向前，放松后背'},
     {t:'婴儿式',d:'跪坐后上身前趴，额头贴地、双臂前伸，深呼吸 1 分钟，让全身慢慢沉下来。',sec:60,say:'婴儿式，额头贴地，深呼吸，让全身沉下来'},
     {t:'靠墙抬腿',d:'仰躺把双腿靠墙抬高成 90°，停 3–5 分钟，缓解腿部疲劳、帮身体进入放松。',sec:180,say:'靠墙抬腿，什么都不用做，只是呼吸放松'},
+  ]},
+  baduanjin:{name:'🪷 八段锦', intro:'八段锦是流传千年的传统养生功法，八个舒缓的动作连成一套，不费力气，站着就能练。它特别适合久坐、易疲惫、想让身体慢慢苏醒的你。练习时不必追求标准，重点是放松，让动作跟着呼吸走——一般是起、展、用力时吸气，落、收、放松时呼气。点下方「跟练」，会有倒计时和温柔的语音陪你一式一式慢慢来。', note:'请量力而行，动作幅度以舒适为度，不必勉强下压或扭转；练习中若有头晕、心慌、关节疼痛，请立即停下休息。孕期、高血压、心脏病或其他慢性病的朋友，开始前请先咨询医生。八段锦是日常养护，不能替代任何医疗。', items:[
+    {t:'第一式 两手托天理三焦', d:'双脚与肩同宽站好，两手在小腹前十指交叉，掌心朝上。慢慢把手举过头顶，到头顶时翻转掌心向上、用力上托，像要顶起天空，同时微微抬头看手背；再缓缓放下手回到腹前。它能舒展全身、拉伸腰背，帮助理顺身体上下的气机、缓解久坐的僵硬。', sec:75, say:'吸气，双手向上托起天空'},
+    {t:'第二式 左右开弓似射雕', d:'两脚分开比肩略宽，微微下蹲成马步。想象手里拉着一张弓：左手食指朝上、向左侧推出，右手像拉弓弦一样屈肘拉向右侧，眼睛看向左手方向；然后还原，换右边做一次。这一式能打开胸腔、舒展肩臂，让呼吸更顺畅，缓解胸闷。', sec:80, say:'拉开弓，深深吸一口气'},
+    {t:'第三式 调理脾胃须单举', d:'自然站立，两手先放在腹前。左手翻掌向上、缓缓举过头顶用力上撑，同时右手掌心向下、轻轻往下按；保持一下，再换右手上举、左手下按。两手一上一下地伸展，能温和地按摩、调理脾胃，帮助消化。', sec:75, say:'一手向上，一手向下，舒展身体'},
+    {t:'第四式 五劳七伤往后瞧', d:'双脚与肩同宽，两手自然放在大腿外侧。头和上半身慢慢向左后方转，目光越过肩膀往后看，胸口微微打开；停一下，转回正前方，再向右后方做一次。它能放松颈肩、舒缓长期劳累带来的紧张和疲惫。', sec:70, say:'轻轻回头，看向身后'},
+    {t:'第五式 摇头摆尾去心火', d:'两脚分开下蹲成马步，双手扶在大腿上。上半身向左前方俯下，再像画弧一样把头和身体摇向右侧、转回中间；左右各做几次，动作要慢而圆。它能舒展腰胯、平息烦躁，帮你把上火、心浮气躁的感觉慢慢放下。', sec:85, say:'缓缓摇摆，放下心里的火气'},
+    {t:'第六式 两手攀足固肾腰', d:'直立站好，两手先向上伸展、再顺着后背、腰、腿慢慢往下摸，上身随之自然前俯，手尽量去够脚踝或小腿（够不到没关系，不必勉强）；停一下，再缓缓直起身。这一式能温养腰肾、拉伸整条后背和腿，缓解腰部酸软。', sec:75, say:'弯下身体，温柔地伸展后背'},
+    {t:'第七式 攒拳怒目增气力', d:'分开双脚下蹲成马步，两手握拳收在腰间。左拳缓缓向前用力打出，同时双眼睁大、目光有神地看向前方；收回左拳，再换右拳打出。它能调动全身气力、振奋精神，让人感到有力量、不疲软。', sec:80, say:'出拳，提起你的精神'},
+    {t:'第八式 背后七颠百病消', d:'双脚并拢站直，两手自然垂在身体两侧，全身放松。脚跟慢慢提起、踮到最高，停一下，再让脚跟轻轻落下、微微一震；这样上下起落重复几次。作为收功，它能放松全身、安定身心，让一身气血回归平稳。', sec:45, say:'踮起脚尖，轻轻落下，全身放松'}
   ]},
   stomach:{name:'🍵 温和养胃',intro:'养胃靠的是日常小习惯，而不是偶尔进补。从下面挑一两条先做起来。',note:'若持续胃痛、反酸或不适，请及时就医。以下仅为温和的日常生活建议，不替代医疗。',items:[
     {t:'细嚼慢咽',d:'每口咀嚼 20 次以上，给胃减负，也更容易感到饱足、不过量。'},
@@ -567,7 +671,7 @@ function renderCareBody(){
   const c=CARE[careCat];
   let html=`<div class="care-intro">${c.intro}</div>`;
   const timed=c.items.filter(x=>x.sec).length;
-  if(careCat==='stretch'&&timed>0)html+=`<button class="btn primary full" style="margin:0 0 6px" onclick="startCareSeq('stretch')">▶ 跟练全套（${timed} 个动作）</button>`;
+  if((careCat==='stretch'||careCat==='baduanjin')&&timed>0)html+=`<button class="btn primary full" style="margin:0 0 6px" onclick="startCareSeq('${careCat}')">▶ 跟练全套（${timed} 个动作）</button>`;
   const se=currentSeason();
   html+=c.items.map((it,i)=>{const now=careCat==='season'&&it.season===se;return `<div class="care-item"><div class="ci-no">${i+1}</div><div style="flex:1">
     <div class="ci-t">${it.t}${now?' <span class="ci-badge">当季 🌿</span>':''}</div><div class="ci-d">${it.d}</div>
@@ -615,15 +719,136 @@ function plFrame(now){
 }
 function plAdvance(){
   if(PL.idx+1<PL.list.length){PL.idx++;setTimeout(()=>{if(document.getElementById('player').classList.contains('show'))runStep()},800)}
-  else{document.getElementById('plTitle').textContent='很好 🌿';document.getElementById('plSub').textContent='完成了，感受身体的放松';speak('很好，完成了，感受身体的放松');setTimeout(()=>closePlayer(false),1500)}
+  else{logActivity('care');document.getElementById('plTitle').textContent='很好 🌿';document.getElementById('plSub').textContent='完成了，感受身体的放松';speak('很好，完成了，感受身体的放松');setTimeout(()=>closePlayer(false),1500)}
 }
 function plTogglePause(){PL.paused=!PL.paused;PL.last=performance.now();document.getElementById('plPause').textContent=PL.paused?'继续':'暂停';try{PL.paused?speechSynthesis.pause():speechSynthesis.resume()}catch(e){}}
 function plNext(){cancelAnimationFrame(PL.raf);chime(660,.4);plAdvance()}
 function plToggle(k){PL[k]=!PL[k];document.getElementById(k==='sound'?'plSound':'plVoice').classList.toggle('on',PL[k]);if(k==='voice'&&!PL.voice){try{speechSynthesis.cancel()}catch(e){}}}
 function closePlayer(){cancelAnimationFrame(PL.raf);try{speechSynthesis.cancel()}catch(e){}document.getElementById('player').classList.remove('show')}
 
+/* ---------- Ambient 音景:纯 Web Audio 实时合成,零文件 ---------- */
+window.Ambient=(()=>{
+  let ctx=null,master=null,cur=null,nodes=[],vol=0.5;const fadeT=0.8;
+  const AC=window.AudioContext||window.webkitAudioContext;
+  const ensure=()=>{if(!AC)return null;if(!ctx){ctx=new AC();master=ctx.createGain();master.gain.value=vol;master.connect(ctx.destination);}return ctx;};
+  const noiseBuf=(sec=4,pink=false)=>{
+    const len=Math.floor(ctx.sampleRate*sec),buf=ctx.createBuffer(1,len,ctx.sampleRate),d=buf.getChannelData(0);
+    let b0=0,b1=0,b2=0;
+    for(let i=0;i<len;i++){const w=Math.random()*2-1;
+      if(pink){b0=0.99765*b0+w*0.0990460;b1=0.96300*b1+w*0.2965164;b2=0.57000*b2+w*1.0526913;d[i]=(b0+b1+b2+w*0.1848)*0.18;}
+      else d[i]=w*0.6;}
+    return buf;};
+  const track=n=>{nodes.push(n);return n;};
+  const now=()=>ctx.currentTime;
+  const builders={
+    rain(){const src=track(ctx.createBufferSource());src.buffer=noiseBuf(4);src.loop=true;
+      const hp=track(ctx.createBiquadFilter());hp.type='highpass';hp.frequency.value=1200;hp.Q.value=0.5;
+      const lp=track(ctx.createBiquadFilter());lp.type='lowpass';lp.frequency.value=8500;
+      const g=track(ctx.createGain());g.gain.value=0.9;src.connect(hp);hp.connect(lp);lp.connect(g);src.start();
+      const t=setInterval(()=>{try{g.gain.setTargetAtTime(0.7+Math.random()*0.35,now(),1.2);hp.frequency.setTargetAtTime(900+Math.random()*700,now(),1.5);}catch(e){}},2200);
+      return {in:g,stop(){clearInterval(t);try{src.stop()}catch(e){}}};},
+    waves(){const src=track(ctx.createBufferSource());src.buffer=noiseBuf(5,true);src.loop=true;
+      const lp=track(ctx.createBiquadFilter());lp.type='lowpass';lp.frequency.value=600;lp.Q.value=0.7;
+      const g=track(ctx.createGain());g.gain.value=0.25;
+      const lfo=track(ctx.createOscillator());lfo.type='sine';lfo.frequency.value=1/9;
+      const lfoG=track(ctx.createGain());lfoG.gain.value=0.35;lfo.connect(lfoG);lfoG.connect(g.gain);
+      const lfo2G=track(ctx.createGain());lfo2G.gain.value=300;lfo.connect(lfo2G);lfo2G.connect(lp.frequency);
+      src.connect(lp);lp.connect(g);src.start();lfo.start();
+      return {in:g,stop(){try{src.stop()}catch(e){}try{lfo.stop()}catch(e){}}};},
+    wind(){const src=track(ctx.createBufferSource());src.buffer=noiseBuf(5,true);src.loop=true;
+      const bp=track(ctx.createBiquadFilter());bp.type='bandpass';bp.frequency.value=500;bp.Q.value=1.4;
+      const g=track(ctx.createGain());g.gain.value=0.5;src.connect(bp);bp.connect(g);src.start();
+      const t=setInterval(()=>{try{bp.frequency.setTargetAtTime(350+Math.random()*900,now(),2.5);g.gain.setTargetAtTime(0.3+Math.random()*0.5,now(),2);}catch(e){}},3000);
+      return {in:g,stop(){clearInterval(t);try{src.stop()}catch(e){}}};},
+    bowl(){const out=track(ctx.createGain());out.gain.value=0.9;
+      const strike=()=>{try{const base=174+Math.random()*40,harm=[1,2.0,2.76,5.4],ga=[1,0.45,0.3,0.15];
+        const hit=ctx.createGain();hit.gain.value=0;hit.connect(out);const t0=now();
+        hit.gain.setValueAtTime(0,t0);hit.gain.linearRampToValueAtTime(0.6,t0+0.05);hit.gain.exponentialRampToValueAtTime(0.0008,t0+9);
+        harm.forEach((h,i)=>{const o=ctx.createOscillator();o.type='sine';o.frequency.value=base*h;
+          const og=ctx.createGain();og.gain.value=ga[i];o.connect(og);og.connect(hit);o.start(t0);o.stop(t0+9.5);});
+        setTimeout(()=>{try{hit.disconnect()}catch(e){}},10000);}catch(e){}};
+      strike();const t=setInterval(strike,11000);
+      return {in:out,stop(){clearInterval(t)}};}
+  };
+  const fadeIn=g=>{try{g.gain.setValueAtTime(0.0001,now());g.gain.exponentialRampToValueAtTime(1,now()+fadeT)}catch(e){}};
+  const teardown=()=>{const old=nodes,b=cur&&cur._b;nodes=[];cur=null;
+    if(b){try{b.in.gain.setTargetAtTime(0.0001,now(),fadeT/3)}catch(e){}}
+    setTimeout(()=>{if(b){try{b.stop()}catch(e){}}old.forEach(n=>{try{n.disconnect&&n.disconnect()}catch(e){}try{n.stop&&n.stop()}catch(e){}});},fadeT*1000+120);};
+  return {
+    list:[{key:'rain',label:'雨声',emoji:'🌧'},{key:'waves',label:'海浪',emoji:'🌊'},{key:'wind',label:'风声',emoji:'🍃'},{key:'bowl',label:'颂钵',emoji:'🔔'}],
+    current(){return cur&&cur.key||null},
+    setVolume(v){vol=Math.max(0,Math.min(1,+v||0));try{if(master)master.gain.setTargetAtTime(vol,now(),0.1)}catch(e){}},
+    play(key){try{if(!ensure()||!builders[key])return;if(ctx.state==='suspended')ctx.resume();
+      if(cur&&cur.key===key){this.stop();return;}
+      const wasPlaying=!!cur;if(wasPlaying)teardown();
+      const start=()=>{const b=builders[key]();b.in.connect(master);fadeIn(b.in);cur={key,_b:b};};
+      wasPlaying?setTimeout(start,fadeT*1000*0.4):start();}catch(e){}},
+    stop(){try{if(cur)teardown()}catch(e){}}
+  };
+})();
+function renderAmbPills(){
+  const wrap=document.getElementById('ambPills');if(!wrap)return;const on=Ambient.current();
+  wrap.innerHTML=Ambient.list.map(a=>`<div class="pill amb ${a.key===on?'on':''}" onclick="toggleAmb('${a.key}')">${a.emoji} ${a.label}</div>`).join('');
+}
+function toggleAmb(key){Ambient.play(key);renderAmbPills();}
+
+/* ---------- 打卡追踪:呼吸/心情/跟练/感恩 共同写入 ---------- */
+function dayKey(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function logActivity(type,n=1){const a=DB.get('activity',{});const k=dayKey();a[k]=a[k]||{};a[k][type]=(a[k][type]||0)+n;DB.set('activity',a)}
+function computeStreak(){const a=DB.get('activity',{});let s=0;const d=new Date();if(!a[dayKey(d)])d.setDate(d.getDate()-1);while(a[dayKey(d)]){s++;d.setDate(d.getDate()-1)}return s}
+function activityTotal(type){const a=DB.get('activity',{});return Object.values(a).reduce((s,r)=>s+(r[type]||0),0)}
+
+/* ---------- 感恩日记:三件好事 ---------- */
+function saveGratitude(){
+  const v=[1,2,3].map(i=>document.getElementById('grat'+i).value.trim()).filter(Boolean);
+  if(!v.length){toast('写下至少一件好事吧 🌼');return}
+  const log=DB.get('gratitude',[]);log.unshift({items:v,ts:Date.now()});DB.set('gratitude',log);
+  [1,2,3].forEach(i=>document.getElementById('grat'+i).value='');
+  logActivity('grat',v.length);renderGratLog();toast('已收下今天的感恩 🌼');
+}
+function renderGratLog(){
+  const log=DB.get('gratitude',[]),el=document.getElementById('gratLog');
+  if(!log.length){el.innerHTML='<div class="empty">还没有记录。今晚开始，写下三件好事吧。</div>';return}
+  el.innerHTML=log.slice(0,30).map(e=>`<div class="grat-entry"><small>${new Date(e.ts).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'})}</small><ul>${e.items.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></div>`).join('');
+}
+
+/* ---------- 成长:连续天数 + 热力图 + 心情趋势 ---------- */
+const MOOD_SCORE={'😣':1,'😔':2,'😐':3,'🙂':4,'😊':5,'😌':4,'🥰':5,'😴':3,'😤':2,'🤗':4};
+function renderHeat(){
+  const a=DB.get('activity',{}),cells=[],cols=12,today=new Date();today.setHours(0,0,0,0);
+  const start=new Date(today);start.setDate(start.getDate()-today.getDay()-(cols-1)*7);
+  for(let c=0;c<cols;c++)for(let r=0;r<7;r++){
+    const d=new Date(start);d.setDate(start.getDate()+c*7+r);
+    if(d>today){cells.push('<i></i>');continue}
+    const rec=a[dayKey(d)],cnt=rec?Object.values(rec).reduce((x,y)=>x+y,0):0;
+    const lvl=cnt>=8?4:cnt>=4?3:cnt>=2?2:cnt>=1?1:0;
+    cells.push(`<i class="${lvl?'l'+lvl:''}" title="${dayKey(d)} · ${cnt} 次"></i>`);
+  }
+  document.getElementById('heat').innerHTML=cells.join('');
+}
+function renderTrend(){
+  const log=DB.get('mood',[]),pts=log.slice(0,14).reverse().map(e=>MOOD_SCORE[e.emo]||3),el=document.getElementById('trend');
+  if(pts.length<2){el.innerHTML='<div class="empty">记录几次心情后，这里会画出你的心情曲线 🌈</div>';return}
+  const W=520,H=120,pad=14,n=pts.length;
+  const x=i=>pad+i*(W-2*pad)/(n-1),y=v=>H-pad-(v-1)/4*(H-2*pad);
+  const line=pts.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  const area=`M${x(0).toFixed(1)} ${H-pad} `+pts.map((v,i)=>`L${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ')+` L${x(n-1).toFixed(1)} ${H-pad} Z`;
+  const dots=pts.map((v,i)=>`<circle class="dot" cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3"/>`).join('');
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}"><defs><linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a78bfa" stop-opacity=".5"/><stop offset="1" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs><path class="ar" d="${area}"/><path class="ln" d="${line}"/>${dots}</svg>`;
+}
+function renderGrow(){
+  const s=computeStreak();
+  document.getElementById('streakNum').textContent=s;
+  document.getElementById('streakCap').textContent=s>0?`连续修行 ${s} 天 · 真好`:'今天迈出第一步吧 🌱';
+  document.getElementById('stBreath').textContent=activityTotal('breath');
+  document.getElementById('stMood').textContent=DB.get('mood',[]).length;
+  document.getElementById('stCare').textContent=activityTotal('care');
+  document.getElementById('stGrat').textContent=DB.get('gratitude',[]).reduce((s,e)=>s+e.items.length,0);
+  renderHeat();renderTrend();
+}
+
 /* ---------- init ---------- */
-initDaily();renderBreathModes();renderMoodGrid();renderMoodLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
+initDaily();renderBreathModes();renderAmbPills();renderMoodGrid();renderMoodLog();renderGratLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
 </script>
 </body>
 </html>
