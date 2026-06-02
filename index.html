@@ -2,13 +2,13 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>心园 · 身心灵健康</title>
 <style>
   :root{
     --bg1:#1a1f3a; --bg2:#2d2a52; --bg3:#3d3268;
     --accent:#a78bfa; --accent2:#7dd3c0; --accent3:#fbbf77;
-    --text:#f5f3ff; --muted:#b9b4d6; --card:rgba(255,255,255,.07);
+    --text:#f5f3ff; --muted:#c9c4e6; --card:rgba(255,255,255,.07);
     --card-br:rgba(255,255,255,.12); --glow:rgba(167,139,250,.35);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -62,7 +62,7 @@
   .breath-circle.run.exhale{transform:scale(.85)}
   .breath-meta{color:var(--muted);font-size:13px;margin-top:6px;min-height:18px}
   .pill-row{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
-  .pill{padding:8px 16px;border-radius:999px;font-size:13px;cursor:pointer;border:1px solid var(--card-br);background:rgba(255,255,255,.06);transition:.2s}
+  .pill{padding:11px 18px;border-radius:999px;font-size:13px;cursor:pointer;border:1px solid var(--card-br);background:rgba(255,255,255,.06);transition:.2s}
   .pill.on{background:linear-gradient(135deg,var(--accent),#7c5cff);border-color:transparent}
   /* ambient soundscape */
   .amb-box{margin-top:20px;padding-top:16px;border-top:1px solid var(--card-br)}
@@ -70,9 +70,10 @@
   .amb-hint{font-size:11px;color:var(--accent2);background:rgba(125,211,192,.16);padding:2px 9px;border-radius:999px;margin-left:6px;vertical-align:1px}
   .amb-vol{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:14px}
   .amb-vol span{font-size:14px;opacity:.8}
-  .amb-vol input[type=range]{-webkit-appearance:none;appearance:none;width:160px;height:4px;border-radius:999px;background:rgba(255,255,255,.18);cursor:pointer}
-  .amb-vol input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 2px 6px var(--glow)}
-  .amb-vol input[type=range]::-moz-range-thumb{width:16px;height:16px;border:none;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  .amb-vol input[type=range]{-webkit-appearance:none;appearance:none;width:170px;height:6px;border-radius:999px;background:rgba(255,255,255,.18);cursor:pointer;padding:8px 0}
+  .amb-vol input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 2px 8px var(--glow);transition:transform .15s}
+  .amb-vol input[type=range]:active::-webkit-slider-thumb{transform:scale(1.15)}
+  .amb-vol input[type=range]::-moz-range-thumb{width:22px;height:22px;border:none;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2))}
   .pill.amb.on{background:linear-gradient(135deg,var(--accent2),#5fb8a3);border-color:transparent;color:#0f2b25}
 
   /* mood */
@@ -100,8 +101,8 @@
   .post .name{font-size:14px;font-weight:600}
   .post .time{font-size:11px;color:var(--muted)}
   .post .text{font-size:15px;line-height:1.65;white-space:pre-wrap}
-  .post .acts{display:flex;gap:18px;margin-top:10px;color:var(--muted);font-size:13px}
-  .post .acts span{cursor:pointer;transition:.2s;user-select:none}
+  .post .acts{display:flex;gap:12px;margin-top:8px;color:var(--muted);font-size:13px}
+  .post .acts span{cursor:pointer;transition:.2s;user-select:none;padding:7px 8px;border-radius:10px}
   .post .acts span:hover{color:var(--accent)}
   .post .acts span.liked{color:#ff8fa3}
   .tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;background:rgba(167,139,250,.2);color:var(--accent);margin-right:6px}
@@ -118,7 +119,7 @@
   .ci-food{font-size:12.5px;color:var(--accent3);background:rgba(251,191,119,.10);border:1px solid rgba(251,191,119,.22);
     border-radius:12px;padding:8px 11px;line-height:1.6;margin-top:9px}
   .ci-toggle{margin-top:10px;font-size:12.5px;color:var(--accent);background:rgba(167,139,250,.12);border:1px solid var(--card-br);
-    border-radius:999px;padding:5px 14px;cursor:pointer;font-family:inherit}
+    border-radius:999px;padding:9px 16px;cursor:pointer;font-family:inherit}
   .ci-toggle:hover{background:rgba(167,139,250,.22)}
   .ci-more{margin-top:11px;border-left:2px solid rgba(167,139,250,.45);padding-left:13px}
   .ci-more[hidden]{display:none}
@@ -160,9 +161,10 @@
   .trend .dot{fill:var(--accent2)}
 
   /* 跟练计时器 overlay */
-  .player{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:24px;
+  .player{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:24px;overflow:auto;
     background:rgba(15,16,35,.78);backdrop-filter:blur(8px)}
   .player.show{display:flex;animation:fade .3s ease}
+  .player-card{max-height:92vh;overflow:auto}
   .player-card{background:linear-gradient(160deg,rgba(45,42,82,.96),rgba(26,31,58,.96));border:1px solid var(--card-br);
     border-radius:26px;padding:26px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.45)}
   .pl-title{font-size:21px;font-weight:600}
@@ -175,7 +177,7 @@
   .pl-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:600;font-variant-numeric:tabular-nums}
   .pl-ctrls{display:flex;gap:10px;justify-content:center;margin-top:4px}
   .pl-toggles{display:flex;gap:10px;justify-content:center;margin-top:14px}
-  .pl-tog{font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--card-br);background:rgba(255,255,255,.05);cursor:pointer;color:var(--muted);user-select:none}
+  .pl-tog{font-size:12px;padding:9px 14px;border-radius:999px;border:1px solid var(--card-br);background:rgba(255,255,255,.05);cursor:pointer;color:var(--muted);user-select:none}
   .pl-tog.on{color:var(--accent);border-color:transparent;background:rgba(167,139,250,.2)}
 
   /* nav */
@@ -188,6 +190,29 @@
   .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(167,139,250,.95);
     color:#1a1f3a;font-weight:600;padding:10px 22px;border-radius:999px;font-size:14px;opacity:0;transition:.3s;z-index:20;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* a11y: visible keyboard focus */
+  :focus-visible{outline:2px solid var(--accent2);outline-offset:2px;border-radius:6px}
+  /* a11y: honor reduced-motion preference */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+    .orb{animation:none}
+  }
+
+  /* crisis / gentle-care card */
+  .crisis{margin-top:14px;border-radius:18px;padding:18px 18px 16px;
+    background:linear-gradient(135deg,rgba(125,211,192,.18),rgba(167,139,250,.16));
+    border:1px solid rgba(125,211,192,.4);animation:fade .5s ease}
+  .crisis h4{margin:0 0 8px;font-size:15px;letter-spacing:1px;display:flex;align-items:center;gap:7px}
+  .crisis p{margin:0 0 10px;font-size:13px;line-height:1.75;color:var(--text)}
+  .crisis .hot{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+  .crisis .hot a{display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;
+    color:var(--text);background:rgba(255,255,255,.08);border:1px solid var(--card-br);
+    border-radius:12px;padding:11px 14px;font-size:13px;transition:.2s}
+  .crisis .hot a:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
+  .crisis .hot a b{font-size:15px;letter-spacing:1px;color:var(--accent2)}
+  .crisis .tip{margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6}
+  .crisis .cls{float:right;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:0 2px}
 </style>
 </head>
 <body>
@@ -224,7 +249,7 @@
     <div class="card breath-wrap">
       <div class="section-title" style="text-align:center">呼吸静心</div>
       <div class="breath-circle" id="breathCircle"><span class="lbl" id="breathLbl">准备</span></div>
-      <div class="breath-meta" id="breathMeta">选择节奏，跟随圆圈一呼一吸</div>
+      <div class="breath-meta" id="breathMeta" aria-live="polite">选择节奏，跟随圆圈一呼一吸</div>
       <div class="pill-row" id="breathModes"></div>
       <button class="btn primary full" id="breathBtn" onclick="toggleBreath()">开始</button>
       <div class="amb-box">
@@ -247,6 +272,7 @@
       <textarea id="moodNote" placeholder="想说点什么？(写下当下的感受、感恩或念头)"></textarea>
       <button class="btn primary full" onclick="saveMood()">记录此刻</button>
     </div>
+    <div id="crisisBox"></div>
     <div class="card">
       <div class="section-title">心情足迹</div>
       <div id="moodLog" class="mood-log"></div>
@@ -324,9 +350,9 @@
 </nav>
 
 <!-- 跟练计时器 -->
-<div class="player" id="player">
+<div class="player" id="player" role="dialog" aria-modal="true" aria-label="跟练">
   <div class="player-card">
-    <div class="pl-title" id="plTitle">跟练</div>
+    <div class="pl-title" id="plTitle" aria-live="polite">跟练</div>
     <div class="pl-sub" id="plSub"></div>
     <div class="pl-ring-wrap">
       <svg class="pl-svg" viewBox="0 0 120 120">
@@ -363,7 +389,7 @@ function go(v){
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
-  if(v!=='breath'){Ambient.stop();renderAmbPills();}
+  if(v!=='breath'){Ambient.stop();renderAmbPills();stopBreath();}
   if(v==='grow')renderGrow();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -472,14 +498,42 @@ function renderMoodGrid(){
   document.getElementById('moodGrid').innerHTML=MOODS.map(m=>`<div class="mood ${m===moodSel?'sel':''}" onclick="pickMood('${m}')">${m}</div>`).join('');
 }
 function pickMood(m){moodSel=m;renderMoodGrid()}
+const HARD_MOODS=['😣','😔','😤'];
 function saveMood(){
   if(!moodSel){toast('先选一个心情吧');return}
+  const picked=moodSel;
   const note=document.getElementById('moodNote').value.trim();
   const log=DB.get('mood',[]);
-  log.unshift({emo:moodSel,note,ts:Date.now()});
+  log.unshift({emo:picked,note,ts:Date.now()});
   DB.set('mood',log);
   moodSel=null;document.getElementById('moodNote').value='';
   logActivity('mood');renderMoodGrid();renderMoodLog();toast('已记录此刻 🌸');
+  maybeShowCrisis(picked,log);
+}
+/* 关怀提醒：识别到难熬的情绪时，温柔陪伴并给出求助通道 */
+function maybeShowCrisis(emo,log){
+  const box=document.getElementById('crisisBox');
+  if(!box)return;
+  if(!HARD_MOODS.includes(emo)){box.innerHTML='';return}
+  // 近24小时内连续多次难过 → 更进一步的关怀语气
+  const dayAgo=Date.now()-24*3600e3;
+  const recentHard=log.filter(e=>e.ts>=dayAgo&&HARD_MOODS.includes(e.emo)).length;
+  const heavy=recentHard>=3;
+  box.innerHTML=`
+    <div class="crisis" role="region" aria-label="关怀提醒">
+      <button class="cls" aria-label="收起" onclick="document.getElementById('crisisBox').innerHTML=''">×</button>
+      <h4>🤍 ${heavy?'我注意到你最近很不容易':'此刻的你，值得被温柔对待'}</h4>
+      <p>${heavy
+        ? '这段时间反复出现沉重的情绪，是很辛苦的事。你不必独自扛着——和信任的人聊聊，或拨打下面的热线，都会有人愿意听你说。'
+        : '难过的感受是真实的，也是允许存在的。先深呼吸三次，给自己倒杯温水。如果这份沉重一直没散去，请记得：寻求帮助是一种勇敢。'}</p>
+      <div class="hot">
+        <a href="tel:12356"><span>全国统一心理援助热线（24小时）</span><b>12356</b></a>
+        <a href="tel:120"><span>遇到紧急危险 · 急救</span><b>120</b></a>
+        <a href="tel:110"><span>人身安全受到威胁 · 报警</span><b>110</b></a>
+      </div>
+      <div class="tip">你也可以试试 <a href="javascript:void(0)" onclick="breathFor(2)" style="color:var(--accent2)">安眠呼吸 4-6</a>，或写下「三件好事」把注意力轻轻带回当下。<br>心园不能替代专业帮助，但会一直在这里陪着你。</div>
+    </div>`;
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function renderMoodLog(){
   const log=DB.get('mood',[]);
@@ -543,7 +597,7 @@ function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','
 /* ---------- care 养护:拉伸 / 养胃 / 助眠 ---------- */
 /* sec=带计时跟练的秒数;say=语音引导词(省略则念标题) */
 const CARE={
-  stretch:{name:'🧘 拉伸放松',intro:'久坐后或睡前都适合。动作放慢、配合呼吸，停留时轻轻呼气，不追求幅度，感到舒展即可。点「跟练」会有倒计时 + 提示音 + 语音引导。',items:[
+  stretch:{name:'🧘 拉伸放松',intro:'久坐后或睡前都适合。动作放慢、配合呼吸，停留时轻轻呼气，不追求幅度，感到舒展即可。点「跟练」会有倒计时 + 提示音 + 语音引导。',note:'请在无痛范围内轻柔进行，感到拉伸即可，切勿弹震或强行下压；出现疼痛、麻木或头晕请立即停止。孕期、近期受伤、关节疾病、高血压或心脏不适的朋友，开始前请先咨询医生。这是日常放松，不替代医疗。',items:[
     {t:'颈部舒展',d:'缓慢低头让下巴靠近胸口停 15 秒；再把头轻轻倒向左右肩各 15 秒，松开伏案一天的脖颈。',sec:45,say:'颈部舒展，缓慢转动，跟随呼吸，松开脖颈'},
     {t:'肩部绕环',d:'双肩向后画大圈 10 次，再向前 10 次，配合深呼吸，化开僵硬的肩背。',sec:30,say:'肩部绕环，向后再向前，放松肩背'},
     {t:'猫牛式',d:'四肢着地，吸气塌腰抬头（牛），呼气拱背低头（猫），来回 8 次，温柔唤醒脊柱。',sec:40,say:'猫牛式，吸气抬头，呼气拱背，唤醒脊柱'},
@@ -569,7 +623,7 @@ const CARE={
     {t:'顺时针揉腹',d:'饭后半小时，手掌贴肚脐周围顺时针轻揉 3–5 分钟，帮助消化。',sec:180,say:'顺时针揉腹，轻柔地画圈，帮助消化'},
     {t:'温和食物',d:'小米粥、南瓜、山药、蒸蛋等温软食物对胃友好；辛辣、油腻、浓茶咖啡适量就好。'},
   ]},
-  sleep:{name:'🌙 助眠安神',intro:'睡前 1 小时开始，给身体一连串「该休息了」的信号，入睡会自然很多。',items:[
+  sleep:{name:'🌙 助眠安神',intro:'睡前 1 小时开始，给身体一连串「该休息了」的信号，入睡会自然很多。',note:'以下为温和的助眠生活习惯。若长期失眠、入睡困难、早醒或伴随情绪低落，可能需要专业帮助，请及时就医或寻求心理支持，不替代医疗。',items:[
     {t:'调暗灯光',d:'睡前 1 小时把灯调暖调暗，少看手机蓝光，让身体开始分泌睡意。'},
     {t:'安眠 4-6 呼吸',d:'吸气 4 秒、呼气 6 秒，延长呼气来安抚神经，做 5–10 轮。',act:'<button class="btn full" style="margin-top:10px" onclick="breathFor(2)">去做安眠 4-6 呼吸 →</button>'},
     {t:'身体扫描',d:'仰躺，从脚趾到头顶，逐个部位默念「放松、放下」，常常没扫完就睡着了。',sec:180,say:'身体扫描，从脚趾到头顶，逐个部位放松、放下'},
@@ -685,7 +739,7 @@ function breathFor(i){go('breath');pickBreath(i)}
 
 /* ---------- 跟练计时器(倒计时环 + 提示音 + 语音,纯前端零依赖) ---------- */
 const RING_C=326.7;   // 2π·52
-const PL={list:[],idx:0,totalMs:0,leftMs:0,last:0,raf:0,paused:false,sound:true,voice:true,ac:null};
+const PL={list:[],idx:0,totalMs:0,leftMs:0,last:0,raf:0,adv:0,paused:false,sound:true,voice:true,ac:null};
 function plAudio(){try{if(!PL.ac)PL.ac=new (window.AudioContext||window.webkitAudioContext)();if(PL.ac.state==='suspended')PL.ac.resume();}catch(e){}return PL.ac}
 function chime(freq,dur){if(!PL.sound)return;const ac=plAudio();if(!ac)return;try{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=freq;o.connect(g);g.connect(ac.destination);const t=ac.currentTime;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.04);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.start(t);o.stop(t+dur+.02)}catch(e){}}
 function speak(text){if(!PL.voice||!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.92;u.pitch=1;speechSynthesis.speak(u)}catch(e){}}
@@ -706,7 +760,7 @@ function runStep(){
   document.getElementById('plNext').style.visibility=PL.list.length>1?'visible':'hidden';
   setRing(1);document.getElementById('plNum').textContent=it.sec;
   chime(528,.5);speak(it.say||it.t);
-  cancelAnimationFrame(PL.raf);PL.raf=requestAnimationFrame(plFrame);
+  clearTimeout(PL.adv);cancelAnimationFrame(PL.raf);PL.raf=requestAnimationFrame(plFrame);
 }
 function plFrame(now){
   const dt=now-PL.last;PL.last=now;
@@ -718,13 +772,14 @@ function plFrame(now){
   PL.raf=requestAnimationFrame(plFrame);
 }
 function plAdvance(){
-  if(PL.idx+1<PL.list.length){PL.idx++;setTimeout(()=>{if(document.getElementById('player').classList.contains('show'))runStep()},800)}
-  else{logActivity('care');document.getElementById('plTitle').textContent='很好 🌿';document.getElementById('plSub').textContent='完成了，感受身体的放松';speak('很好，完成了，感受身体的放松');setTimeout(()=>closePlayer(false),1500)}
+  cancelAnimationFrame(PL.raf);clearTimeout(PL.adv);
+  if(PL.idx+1<PL.list.length){PL.idx++;PL.adv=setTimeout(()=>{if(document.getElementById('player').classList.contains('show'))runStep()},800)}
+  else{logActivity('care');document.getElementById('plTitle').textContent='很好 🌿';document.getElementById('plSub').textContent='完成了，感受身体的放松';speak('很好，完成了，感受身体的放松');PL.adv=setTimeout(()=>closePlayer(false),1500)}
 }
 function plTogglePause(){PL.paused=!PL.paused;PL.last=performance.now();document.getElementById('plPause').textContent=PL.paused?'继续':'暂停';try{PL.paused?speechSynthesis.pause():speechSynthesis.resume()}catch(e){}}
 function plNext(){cancelAnimationFrame(PL.raf);chime(660,.4);plAdvance()}
 function plToggle(k){PL[k]=!PL[k];document.getElementById(k==='sound'?'plSound':'plVoice').classList.toggle('on',PL[k]);if(k==='voice'&&!PL.voice){try{speechSynthesis.cancel()}catch(e){}}}
-function closePlayer(){cancelAnimationFrame(PL.raf);try{speechSynthesis.cancel()}catch(e){}document.getElementById('player').classList.remove('show')}
+function closePlayer(){cancelAnimationFrame(PL.raf);clearTimeout(PL.adv);try{speechSynthesis.cancel()}catch(e){}document.getElementById('player').classList.remove('show')}
 
 /* ---------- Ambient 音景:纯 Web Audio 实时合成,零文件 ---------- */
 window.Ambient=(()=>{
@@ -849,6 +904,8 @@ function renderGrow(){
 
 /* ---------- init ---------- */
 initDaily();renderBreathModes();renderAmbPills();renderMoodGrid();renderMoodLog();renderGratLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
+/* Esc 关闭跟练浮层 */
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('player').classList.contains('show'))closePlayer()});
 </script>
 </body>
 </html>
