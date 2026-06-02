@@ -105,6 +105,8 @@
   .ci-t{font-size:15px;font-weight:600}
   .ci-d{font-size:13px;color:var(--muted);line-height:1.65;margin-top:3px}
   .ci-badge{font-size:11px;color:var(--accent2);background:rgba(125,211,192,.18);padding:2px 9px;border-radius:999px;margin-left:6px;white-space:nowrap}
+  .ci-food{font-size:12.5px;color:var(--accent3);background:rgba(251,191,119,.10);border:1px solid rgba(251,191,119,.22);
+    border-radius:12px;padding:8px 11px;line-height:1.6;margin-top:9px}
   .care-note{margin-top:16px;font-size:12px;color:var(--muted);background:rgba(251,191,119,.12);
     border:1px solid rgba(251,191,119,.28);border-radius:12px;padding:10px 13px;line-height:1.6}
 
@@ -279,7 +281,14 @@ const QUOTES=[
   ["每一次呼气，都是一次温柔的放下。","— 呼吸练习"],
   ["你值得被爱，仅仅因为你存在。","— 心园"],
   ["把注意力带回当下，焦虑便失去了燃料。","— 正念"],
-  ["照顾好自己，是你能给世界最好的礼物。","— 心园"]
+  ["照顾好自己，是你能给世界最好的礼物。","— 心园"],
+  ["恬惔虚无，真气从之；精神内守，病安从来。","《黄帝内经》"],
+  ["食饮有节，起居有常，不妄作劳。","《黄帝内经》"],
+  ["春夏养阳，秋冬养阴，顺四时而适寒暑。","《黄帝内经》"],
+  ["上工治未病——最好的养生，在病来之前。","《黄帝内经》"],
+  ["流水不腐，户枢不蠹；动则不衰。","《吕氏春秋》"],
+  ["清虚静泰，少私寡欲，形神共养。","嵇康《养生论》"],
+  ["四季脾旺不受邪。","张仲景《金匮要略》"]
 ];
 function newQuote(){
   const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
@@ -457,11 +466,11 @@ const CARE={
     {t:'温水泡脚',d:'睡前用约 40℃ 温水泡脚 10–15 分钟，暖身、促进循环、帮助入睡。',sec:600,say:'泡脚时间，放松，感受脚下的温暖'},
     {t:'固定作息',d:'尽量同一时间上床和起床，周末也别差太多，生物钟会回报你。'},
   ]},
-  season:{name:'🌸 四时养生',intro:'出自《黄帝内经·四气调神大论》：顺应春生、夏长、秋收、冬藏，「春夏养阳，秋冬养阴」。下方会自动高亮当季。',items:[
-    {t:'春 · 养肝舒展',season:'spring',d:'夜卧早起，在庭中散步，披发松身，让心情舒畅生发，多走动、别压抑——「以使志生」。对应「养生（生发）」之道，少酸增甘以养脾。'},
-    {t:'夏 · 养心从容',season:'summer',d:'夜卧早起，不厌长日，使心境平和不躁怒，适当出汗散热——「使志无怒」。心静自然凉，午间小憩养心。对应「养长（长养）」之道。'},
-    {t:'秋 · 养肺收敛',season:'autumn',d:'早卧早起，与鸡俱兴，收敛神气、保持安宁以缓秋之肃杀——「使志安宁」。天干物燥，多润燥（梨、银耳、温水）。对应「养收（收敛）」之道。'},
-    {t:'冬 · 养肾闭藏',season:'winter',d:'早卧晚起，必待日光；注意保暖、藏精蓄锐，不过度消耗、不大汗淋漓——「使志若伏若匿」。安静守神。对应「养藏（闭藏）」之道。'},
+  season:{name:'🌸 四时养生',intro:'出自《黄帝内经·四气调神大论》：顺应春生、夏长、秋收、冬藏，「春夏养阳，秋冬养阴」。下方会自动高亮当季。',note:'食疗为传统养生参考，体质各异；过敏、孕期或慢性病请遵医嘱。',items:[
+    {t:'春 · 养肝舒展',season:'spring',d:'夜卧早起，在庭中散步，披发松身，让心情舒畅生发，多走动、别压抑——「以使志生」。对应「养生（生发）」之道。',food:'少酸增甘以养脾：春笋、豆芽、时令绿叶菜；疏肝可用玫瑰花、陈皮泡水。'},
+    {t:'夏 · 养心从容',season:'summer',d:'夜卧早起，不厌长日，使心境平和不躁怒，适当出汗散热——「使志无怒」。心静自然凉，午间小憩养心。对应「养长（长养）」之道。',food:'清心解暑：莲子、百合、绿豆、苦瓜、冬瓜；多温水、少冰饮。'},
+    {t:'秋 · 养肺收敛',season:'autumn',d:'早卧早起，与鸡俱兴，收敛神气、保持安宁以缓秋之肃杀——「使志安宁」。对应「养收（收敛）」之道。',food:'润燥养肺：梨、银耳、百合、蜂蜜、芝麻；少辛辣燥物。'},
+    {t:'冬 · 养肾闭藏',season:'winter',d:'早卧晚起，必待日光；注意保暖、藏精蓄锐，不过度消耗、不大汗淋漓——「使志若伏若匿」。对应「养藏（闭藏）」之道。',food:'温补养肾：姜枣茶、山药、黑芝麻、核桃，羊肉适量；忌生冷。'},
   ]},
   neijing:{name:'📜 黄帝内经',intro:'《黄帝内经》的养生总纲——两千年前关于身心安顿之道。',note:'以下为传统养生文化与生活理念，用于日常调养身心；身体不适请及时就医，不替代医疗诊治。',items:[
     {t:'法于阴阳，起居有常',d:'《素问·上古天真论》：「食饮有节，起居有常，不妄作劳」——顺应自然节律，吃有度、睡规律、别过劳，是一切养生的根。'},
@@ -494,6 +503,7 @@ function renderCareBody(){
   const se=currentSeason();
   html+=c.items.map((it,i)=>{const now=careCat==='season'&&it.season===se;return `<div class="care-item"><div class="ci-no">${i+1}</div><div style="flex:1">
     <div class="ci-t">${it.t}${now?' <span class="ci-badge">当季 🌿</span>':''}</div><div class="ci-d">${it.d}</div>
+    ${it.food?`<div class="ci-food">🍵 ${it.food}</div>`:''}
     ${it.sec?`<button class="btn" style="margin-top:10px" onclick="playOne('${careCat}',${i})">▶ 跟练 ${fmtSec(it.sec)}</button>`:''}${it.act||''}</div></div>`}).join('');
   if(c.note)html+=`<div class="care-note">⚕ ${c.note}</div>`;
   document.getElementById('careBody').innerHTML=html;
