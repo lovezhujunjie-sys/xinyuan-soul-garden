@@ -96,6 +96,17 @@
   .post .acts span.liked{color:#ff8fa3}
   .tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;background:rgba(167,139,250,.2);color:var(--accent);margin-right:6px}
 
+  /* care 养护 */
+  .care-intro{color:var(--muted);font-size:13px;line-height:1.65;margin:2px 4px 14px}
+  .care-item{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-top:1px solid var(--card-br)}
+  .care-item:first-of-type{border-top:none}
+  .ci-no{flex:0 0 26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#1a1f3a;margin-top:1px}
+  .ci-t{font-size:15px;font-weight:600}
+  .ci-d{font-size:13px;color:var(--muted);line-height:1.65;margin-top:3px}
+  .care-note{margin-top:16px;font-size:12px;color:var(--muted);background:rgba(251,191,119,.12);
+    border:1px solid rgba(251,191,119,.28);border-radius:12px;padding:10px 13px;line-height:1.6}
+
   /* nav */
   .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(20,22,45,.85);backdrop-filter:blur(18px);
     border-top:1px solid var(--card-br);display:flex;max-width:560px;margin:0 auto}
@@ -130,6 +141,7 @@
       <div class="row">
         <button class="btn primary" onclick="go('breath')">🌬 呼吸静心</button>
         <button class="btn" onclick="go('mood')">📿 记录心情</button>
+        <button class="btn" onclick="go('care')">🌿 拉伸·养胃·助眠</button>
         <button class="btn" onclick="go('community')">💞 社区分享</button>
       </div>
       <button class="btn full" onclick="downloadApp()">⬇ 下载到本地 · 离线使用</button>
@@ -171,6 +183,15 @@
     </div>
     <div class="card" id="feed"></div>
   </section>
+
+  <!-- ========== 养护:拉伸 / 养胃 / 助眠 ========== -->
+  <section class="view" id="view-care">
+    <div class="card">
+      <div class="section-title">温柔调养 · 拉伸 / 养胃 / 助眠</div>
+      <div class="pill-row" id="careTabs"></div>
+      <div id="careBody"></div>
+    </div>
+  </section>
 </div>
 
 <!-- nav -->
@@ -178,6 +199,7 @@
   <button data-v="home" class="on" onclick="go('home')"><span class="ic">🏠</span>每日</button>
   <button data-v="breath" onclick="go('breath')"><span class="ic">🌬</span>呼吸</button>
   <button data-v="mood" onclick="go('mood')"><span class="ic">📿</span>心情</button>
+  <button data-v="care" onclick="go('care')"><span class="ic">🌿</span>养护</button>
   <button data-v="community" onclick="go('community')"><span class="ic">💞</span>社区</button>
 </nav>
 
@@ -364,8 +386,49 @@ function renderFeed(){
 
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
+/* ---------- care 养护:拉伸 / 养胃 / 助眠 ---------- */
+const CARE={
+  stretch:{name:'🧘 拉伸放松',intro:'久坐后或睡前都适合。动作放慢、配合呼吸，停留时轻轻呼气，不追求幅度，感到舒展即可。',items:[
+    {t:'颈部舒展',d:'缓慢低头让下巴靠近胸口停 15 秒；再把头轻轻倒向左右肩各 15 秒，松开伏案一天的脖颈。'},
+    {t:'肩部绕环',d:'双肩向后画大圈 10 次，再向前 10 次，配合深呼吸，化开僵硬的肩背。'},
+    {t:'猫牛式',d:'四肢着地，吸气塌腰抬头（牛），呼气拱背低头（猫），来回 8 次，温柔唤醒脊柱。'},
+    {t:'坐姿前屈',d:'坐直、双腿伸直，呼气慢慢向前倾，手伸向脚尖（够不到也没关系），停 20 秒，放松后背与腿后侧。'},
+    {t:'婴儿式',d:'跪坐后上身前趴，额头贴地、双臂前伸，深呼吸 1 分钟，让全身慢慢沉下来。'},
+    {t:'靠墙抬腿',d:'仰躺把双腿靠墙抬高成 90°，停 3–5 分钟，缓解腿部疲劳、帮身体进入放松。'},
+  ]},
+  stomach:{name:'🍵 温和养胃',intro:'养胃靠的是日常小习惯，而不是偶尔进补。从下面挑一两条先做起来。',note:'若持续胃痛、反酸或不适，请及时就医。以下仅为温和的日常生活建议，不替代医疗。',items:[
+    {t:'细嚼慢咽',d:'每口咀嚼 20 次以上，给胃减负，也更容易感到饱足、不过量。'},
+    {t:'温水温食',d:'少喝冰饮；早晨一杯温水唤醒肠胃。饭吃七八分饱即可，别撑。'},
+    {t:'规律三餐',d:'尽量定时吃饭，别让胃长时间空着，也别暴饮暴食。'},
+    {t:'睡前 3 小时不进食',d:'给肠胃留出休息时间，胃轻松了，也睡得更安稳。'},
+    {t:'顺时针揉腹',d:'饭后半小时，手掌贴肚脐周围顺时针轻揉 3–5 分钟，帮助消化。'},
+    {t:'温和食物',d:'小米粥、南瓜、山药、蒸蛋等温软食物对胃友好；辛辣、油腻、浓茶咖啡适量就好。'},
+  ]},
+  sleep:{name:'🌙 助眠安神',intro:'睡前 1 小时开始，给身体一连串「该休息了」的信号，入睡会自然很多。',items:[
+    {t:'调暗灯光',d:'睡前 1 小时把灯调暖调暗，少看手机蓝光，让身体开始分泌睡意。'},
+    {t:'安眠 4-6 呼吸',d:'吸气 4 秒、呼气 6 秒，延长呼气来安抚神经，做 5–10 轮。',act:'<button class="btn full" style="margin-top:10px" onclick="breathFor(2)">去做安眠 4-6 呼吸 →</button>'},
+    {t:'身体扫描',d:'仰躺，从脚趾到头顶，逐个部位默念「放松、放下」，常常没扫完就睡着了。'},
+    {t:'写下牵挂',d:'把明天要做的事、心里的念头写在纸上交出去，大脑就不必反复提醒你。'},
+    {t:'温水泡脚',d:'睡前用约 40℃ 温水泡脚 10–15 分钟，暖身、促进循环、帮助入睡。'},
+    {t:'固定作息',d:'尽量同一时间上床和起床，周末也别差太多，生物钟会回报你。'},
+  ]},
+};
+let careCat='stretch';
+function renderCareTabs(){
+  document.getElementById('careTabs').innerHTML=Object.entries(CARE).map(([k,v])=>`<div class="pill ${k===careCat?'on':''}" onclick="pickCare('${k}')">${v.name}</div>`).join('');
+}
+function pickCare(k){careCat=k;renderCareTabs();renderCareBody()}
+function renderCareBody(){
+  const c=CARE[careCat];
+  let html=`<div class="care-intro">${c.intro}</div>`;
+  html+=c.items.map((it,i)=>`<div class="care-item"><div class="ci-no">${i+1}</div><div><div class="ci-t">${it.t}</div><div class="ci-d">${it.d}</div>${it.act||''}</div></div>`).join('');
+  if(c.note)html+=`<div class="care-note">⚕ ${c.note}</div>`;
+  document.getElementById('careBody').innerHTML=html;
+}
+function breathFor(i){go('breath');pickBreath(i)}
+
 /* ---------- init ---------- */
-initDaily();renderBreathModes();renderMoodGrid();renderMoodLog();renderTagRow();renderFeed();
+initDaily();renderBreathModes();renderMoodGrid();renderMoodLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
 </script>
 </body>
 </html>
