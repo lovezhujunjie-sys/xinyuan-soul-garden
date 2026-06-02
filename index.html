@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>心园 · 身心灵健康</title>
+<style>
+  :root{
+    --bg1:#1a1f3a; --bg2:#2d2a52; --bg3:#3d3268;
+    --accent:#a78bfa; --accent2:#7dd3c0; --accent3:#fbbf77;
+    --text:#f5f3ff; --muted:#b9b4d6; --card:rgba(255,255,255,.07);
+    --card-br:rgba(255,255,255,.12); --glow:rgba(167,139,250,.35);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    color:var(--text);
+    background:linear-gradient(160deg,var(--bg1),var(--bg2) 55%,var(--bg3));
+    background-attachment:fixed;
+    overflow-x:hidden;
+  }
+  /* floating ambient orbs */
+  .orb{position:fixed;border-radius:50%;filter:blur(60px);opacity:.4;z-index:0;pointer-events:none;animation:float 18s ease-in-out infinite}
+  .orb.a{width:320px;height:320px;background:#7c5cff;top:-80px;left:-60px}
+  .orb.b{width:280px;height:280px;background:#2dd4bf;bottom:60px;right:-70px;animation-delay:-6s}
+  .orb.c{width:220px;height:220px;background:#fbbf77;top:40%;left:55%;animation-delay:-12s;opacity:.25}
+  @keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-40px)}}
+
+  .app{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:24px 18px 120px}
+  header.top{text-align:center;padding:18px 0 10px}
+  header.top h1{margin:0;font-size:26px;letter-spacing:6px;font-weight:600}
+  header.top p{margin:6px 0 0;color:var(--muted);font-size:13px;letter-spacing:2px}
+
+  .view{display:none;animation:fade .45s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--card);border:1px solid var(--card-br);border-radius:22px;padding:20px;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,.18)}
+  .card + .card{margin-top:16px}
+  .section-title{font-size:14px;color:var(--muted);letter-spacing:2px;margin:6px 4px 12px}
+
+  /* daily card */
+  .daily{background:linear-gradient(135deg,rgba(167,139,250,.25),rgba(125,211,192,.18));text-align:center;padding:30px 24px}
+  .daily .quote{font-size:20px;line-height:1.7;font-weight:500}
+  .daily .from{margin-top:14px;color:var(--muted);font-size:13px}
+  .daily .date{font-size:12px;color:var(--muted);letter-spacing:3px;margin-bottom:14px}
+  .btn{display:inline-block;border:none;cursor:pointer;border-radius:999px;padding:12px 22px;font-size:14px;color:var(--text);
+       background:rgba(255,255,255,.12);border:1px solid var(--card-br);transition:.25s;font-family:inherit}
+  .btn:hover{background:rgba(255,255,255,.2);transform:translateY(-1px)}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),#7c5cff);border:none;box-shadow:0 6px 20px var(--glow)}
+  .btn.full{display:block;width:100%;text-align:center;margin-top:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* breathing */
+  .breath-wrap{text-align:center;padding:30px 20px 26px}
+  .breath-circle{width:180px;height:180px;border-radius:50%;margin:10px auto 8px;position:relative;
+    background:radial-gradient(circle at 30% 30%,rgba(125,211,192,.55),rgba(124,92,255,.45));
+    box-shadow:0 0 60px var(--glow);transition:transform 4s ease-in-out;display:flex;align-items:center;justify-content:center}
+  .breath-circle .lbl{font-size:18px;letter-spacing:3px}
+  .breath-circle.run.inhale{transform:scale(1.35)}
+  .breath-circle.run.exhale{transform:scale(.85)}
+  .breath-meta{color:var(--muted);font-size:13px;margin-top:6px;min-height:18px}
+  .pill-row{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
+  .pill{padding:8px 16px;border-radius:999px;font-size:13px;cursor:pointer;border:1px solid var(--card-br);background:rgba(255,255,255,.06);transition:.2s}
+  .pill.on{background:linear-gradient(135deg,var(--accent),#7c5cff);border-color:transparent}
+
+  /* mood */
+  .mood-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:6px 0 14px}
+  .mood{aspect-ratio:1;border-radius:16px;border:1px solid var(--card-br);background:rgba(255,255,255,.05);
+        font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+  .mood:hover{transform:translateY(-2px)}
+  .mood.sel{background:linear-gradient(135deg,rgba(167,139,250,.5),rgba(125,211,192,.4));border-color:transparent;box-shadow:0 6px 18px var(--glow)}
+  textarea,input{width:100%;border-radius:14px;border:1px solid var(--card-br);background:rgba(255,255,255,.06);
+    color:var(--text);padding:12px 14px;font-family:inherit;font-size:14px;resize:none}
+  textarea:focus,input:focus{outline:none;border-color:var(--accent)}
+  .mood-log{margin-top:14px}
+  .mood-entry{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--card-br)}
+  .mood-entry .emo{font-size:24px}
+  .mood-entry .body small{color:var(--muted);font-size:11px;letter-spacing:1px}
+  .mood-entry .body div{font-size:14px;margin-top:3px;line-height:1.5}
+
+  /* community */
+  .composer textarea{min-height:70px;margin-bottom:10px}
+  .post{padding:16px 0;border-top:1px solid var(--card-br)}
+  .post:first-of-type{border-top:none}
+  .post .head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  .post .name{font-size:14px;font-weight:600}
+  .post .time{font-size:11px;color:var(--muted)}
+  .post .text{font-size:15px;line-height:1.65;white-space:pre-wrap}
+  .post .acts{display:flex;gap:18px;margin-top:10px;color:var(--muted);font-size:13px}
+  .post .acts span{cursor:pointer;transition:.2s;user-select:none}
+  .post .acts span:hover{color:var(--accent)}
+  .post .acts span.liked{color:#ff8fa3}
+  .tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;background:rgba(167,139,250,.2);color:var(--accent);margin-right:6px}
+
+  /* nav */
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(20,22,45,.85);backdrop-filter:blur(18px);
+    border-top:1px solid var(--card-br);display:flex;max-width:560px;margin:0 auto}
+  .nav button{flex:1;background:none;border:none;color:var(--muted);padding:12px 4px 16px;font-size:11px;cursor:pointer;font-family:inherit;transition:.2s;letter-spacing:1px}
+  .nav button .ic{display:block;font-size:21px;margin-bottom:3px}
+  .nav button.on{color:var(--accent)}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:18px 0}
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(167,139,250,.95);
+    color:#1a1f3a;font-weight:600;padding:10px 22px;border-radius:999px;font-size:14px;opacity:0;transition:.3s;z-index:20;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
+
+<div class="app">
+  <header class="top">
+    <h1>心 园</h1>
+    <p>愿你平安 · 喜乐 · 自在</p>
+  </header>
+
+  <!-- ========== 首页：每日心灵卡片 ========== -->
+  <section class="view active" id="view-home">
+    <div class="card daily">
+      <div class="date" id="todayDate"></div>
+      <div class="quote" id="dailyQuote">载入中…</div>
+      <div class="from" id="dailyFrom"></div>
+      <button class="btn full" onclick="newQuote()">换一句 ✨</button>
+    </div>
+    <div class="card">
+      <div class="section-title">今天，你想从哪里开始？</div>
+      <div class="row">
+        <button class="btn primary" onclick="go('breath')">🌬 呼吸静心</button>
+        <button class="btn" onclick="go('mood')">📿 记录心情</button>
+        <button class="btn" onclick="go('community')">💞 社区分享</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 呼吸引导 ========== -->
+  <section class="view" id="view-breath">
+    <div class="card breath-wrap">
+      <div class="section-title" style="text-align:center">呼吸静心</div>
+      <div class="breath-circle" id="breathCircle"><span class="lbl" id="breathLbl">准备</span></div>
+      <div class="breath-meta" id="breathMeta">选择节奏，跟随圆圈一呼一吸</div>
+      <div class="pill-row" id="breathModes"></div>
+      <button class="btn primary full" id="breathBtn" onclick="toggleBreath()">开始</button>
+    </div>
+  </section>
+
+  <!-- ========== 情绪记录 ========== -->
+  <section class="view" id="view-mood">
+    <div class="card">
+      <div class="section-title">此刻，你的心情是？</div>
+      <div class="mood-grid" id="moodGrid"></div>
+      <textarea id="moodNote" placeholder="想说点什么？(写下当下的感受、感恩或念头)"></textarea>
+      <button class="btn primary full" onclick="saveMood()">记录此刻</button>
+    </div>
+    <div class="card">
+      <div class="section-title">心情足迹</div>
+      <div id="moodLog" class="mood-log"></div>
+    </div>
+  </section>
+
+  <!-- ========== 社区分享 ========== -->
+  <section class="view" id="view-community">
+    <div class="card composer">
+      <div class="section-title">分享你的身心灵感悟</div>
+      <textarea id="postText" placeholder="一句感悟、一段经历、一份祝福… 让爱与平安流动"></textarea>
+      <div class="row" id="tagRow"></div>
+      <button class="btn primary full" onclick="addPost()">发布 💫</button>
+    </div>
+    <div class="card" id="feed"></div>
+  </section>
+</div>
+
+<!-- nav -->
+<nav class="nav" id="nav">
+  <button data-v="home" class="on" onclick="go('home')"><span class="ic">🏠</span>每日</button>
+  <button data-v="breath" onclick="go('breath')"><span class="ic">🌬</span>呼吸</button>
+  <button data-v="mood" onclick="go('mood')"><span class="ic">📿</span>心情</button>
+  <button data-v="community" onclick="go('community')"><span class="ic">💞</span>社区</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- storage helpers ---------- */
+const DB = {
+  get:(k,d)=>{try{return JSON.parse(localStorage.getItem('xy_'+k))??d}catch(e){return d}},
+  set:(k,v)=>localStorage.setItem('xy_'+k,JSON.stringify(v))
+};
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+function timeAgo(ts){const s=(Date.now()-ts)/1000;if(s<60)return '刚刚';if(s<3600)return Math.floor(s/60)+'分钟前';if(s<86400)return Math.floor(s/3600)+'小时前';return Math.floor(s/86400)+'天前'}
+
+/* ---------- navigation ---------- */
+function go(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------- daily quote ---------- */
+const QUOTES=[
+  ["你本自具足，无需向外追寻平安。","— 心园"],
+  ["允许自己慢下来，呼吸就是回家的路。","— 一行禅师 启发"],
+  ["你不是你的情绪，你是觉察情绪的那片天空。","— 心园"],
+  ["此刻你所拥有的，已足够丰盛。","— 感恩练习"],
+  ["温柔地对待自己，就像对待一位心爱的朋友。","— 自我慈悲"],
+  ["万物皆有裂痕，那是光照进来的地方。","— 莱昂纳德·科恩"],
+  ["平静不是没有风暴，而是风暴中内心的安定。","— 心园"],
+  ["放下不属于你的重量，你会发现自己一直在飞。","— 心园"],
+  ["每一次呼气，都是一次温柔的放下。","— 呼吸练习"],
+  ["你值得被爱，仅仅因为你存在。","— 心园"],
+  ["把注意力带回当下，焦虑便失去了燃料。","— 正念"],
+  ["照顾好自己，是你能给世界最好的礼物。","— 心园"]
+];
+function newQuote(){
+  const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  document.getElementById('dailyQuote').textContent='“'+q[0]+'”';
+  document.getElementById('dailyFrom').textContent=q[1];
+}
+function initDaily(){
+  const d=new Date();
+  document.getElementById('todayDate').textContent=`${d.getFullYear()} · ${d.getMonth()+1} · ${d.getDate()}`;
+  // deterministic quote of the day
+  const idx=(d.getFullYear()+d.getMonth()*31+d.getDate())%QUOTES.length;
+  const q=QUOTES[idx];
+  document.getElementById('dailyQuote').textContent='“'+q[0]+'”';
+  document.getElementById('dailyFrom').textContent=q[1];
+}
+
+/* ---------- breathing ---------- */
+const BREATH_MODES=[
+  {name:'放松 4-7-8',phases:[['吸气',4],['屏息',7],['呼气',8]]},
+  {name:'平衡 4-4-4-4',phases:[['吸气',4],['屏息',4],['呼气',4],['屏息',4]]},
+  {name:'安眠 4-6',phases:[['吸气',4],['呼气',6]]},
+];
+let breathMode=0,breathRunning=false,breathTimer=null,breathCount=0;
+function renderBreathModes(){
+  const wrap=document.getElementById('breathModes');
+  wrap.innerHTML=BREATH_MODES.map((m,i)=>`<div class="pill ${i===breathMode?'on':''}" onclick="pickBreath(${i})">${m.name}</div>`).join('');
+}
+function pickBreath(i){if(breathRunning)return;breathMode=i;renderBreathModes()}
+function toggleBreath(){breathRunning?stopBreath():startBreath()}
+function startBreath(){
+  breathRunning=true;breathCount=0;
+  document.getElementById('breathBtn').textContent='结束';
+  runPhase(0);
+}
+function runPhase(pi){
+  if(!breathRunning)return;
+  const mode=BREATH_MODES[breathMode];
+  const [label,secs]=mode.phases[pi];
+  const c=document.getElementById('breathCircle');
+  c.classList.add('run');c.classList.remove('inhale','exhale');
+  if(label==='吸气')c.classList.add('inhale');
+  else if(label==='呼气')c.classList.add('exhale');
+  c.style.transitionDuration=secs+'s';
+  let left=secs;
+  document.getElementById('breathLbl').textContent=label;
+  document.getElementById('breathMeta').textContent=`${label} · ${left}s  ·  已完成 ${breathCount} 轮`;
+  clearInterval(breathTimer);
+  breathTimer=setInterval(()=>{
+    left--;
+    if(left<=0){clearInterval(breathTimer);
+      let next=pi+1;
+      if(next>=mode.phases.length){breathCount++;next=0}
+      runPhase(next);
+    }else{
+      document.getElementById('breathMeta').textContent=`${label} · ${left}s  ·  已完成 ${breathCount} 轮`;
+    }
+  },1000);
+}
+function stopBreath(){
+  breathRunning=false;clearInterval(breathTimer);
+  const c=document.getElementById('breathCircle');
+  c.classList.remove('run','inhale','exhale');c.style.transitionDuration='4s';
+  document.getElementById('breathLbl').textContent='很好';
+  document.getElementById('breathBtn').textContent='开始';
+  document.getElementById('breathMeta').textContent=breathCount>0?`这次你完成了 ${breathCount} 轮呼吸 🌿`:'选择节奏，跟随圆圈一呼一吸';
+}
+
+/* ---------- mood ---------- */
+const MOODS=['😣','😔','😐','🙂','😊','😌','🥰','😴','😤','🤗'];
+let moodSel=null;
+function renderMoodGrid(){
+  document.getElementById('moodGrid').innerHTML=MOODS.map(m=>`<div class="mood ${m===moodSel?'sel':''}" onclick="pickMood('${m}')">${m}</div>`).join('');
+}
+function pickMood(m){moodSel=m;renderMoodGrid()}
+function saveMood(){
+  if(!moodSel){toast('先选一个心情吧');return}
+  const note=document.getElementById('moodNote').value.trim();
+  const log=DB.get('mood',[]);
+  log.unshift({emo:moodSel,note,ts:Date.now()});
+  DB.set('mood',log);
+  moodSel=null;document.getElementById('moodNote').value='';
+  renderMoodGrid();renderMoodLog();toast('已记录此刻 🌸');
+}
+function renderMoodLog(){
+  const log=DB.get('mood',[]);
+  const el=document.getElementById('moodLog');
+  if(!log.length){el.innerHTML='<div class="empty">还没有记录，从今天开始倾听自己。</div>';return}
+  el.innerHTML=log.slice(0,30).map(e=>`
+    <div class="mood-entry">
+      <div class="emo">${e.emo}</div>
+      <div class="body"><small>${new Date(e.ts).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</small>
+      <div>${e.note?escapeHtml(e.note):'<span style="color:var(--muted)">（仅记录心情）</span>'}</div></div>
+    </div>`).join('');
+}
+
+/* ---------- community ---------- */
+const TAGS=['#冥想','#感恩','#疗愈','#正念','#祝福','#成长'];
+let postTags=new Set();
+function renderTagRow(){
+  document.getElementById('tagRow').innerHTML=TAGS.map(t=>`<div class="pill ${postTags.has(t)?'on':''}" onclick="toggleTag('${t}')">${t}</div>`).join('');
+}
+function toggleTag(t){postTags.has(t)?postTags.delete(t):postTags.add(t);renderTagRow()}
+function seedPosts(){
+  return [
+    {name:'静水',emo:'🌿',text:'今天试着在地铁上闭眼做了十次深呼吸，下车时整个人都松了下来。原来平静一直都在，只是我太忙忘了回来。',tags:['#正念','#呼吸'],likes:12,liked:false,ts:Date.now()-3600e3*5},
+    {name:'晨光',emo:'☀️',text:'感恩今天：温热的早餐、朋友的一句问候、窗外的鸟鸣。幸福其实由很多微小的瞬间组成。',tags:['#感恩'],likes:24,liked:false,ts:Date.now()-3600e3*26},
+    {name:'安然',emo:'🕊',text:'愿正在看这条的你，今天被温柔以待。如果累了，就允许自己休息，你已经做得很好了。',tags:['#祝福','#疗愈'],likes:58,liked:false,ts:Date.now()-3600e3*50},
+  ];
+}
+function addPost(){
+  const text=document.getElementById('postText').value.trim();
+  if(!text){toast('写点什么再发布吧');return}
+  const feed=DB.get('posts',null)||seedPosts();
+  feed.unshift({name:'我',emo:'🌟',text,tags:[...postTags],likes:0,liked:false,ts:Date.now()});
+  DB.set('posts',feed);
+  document.getElementById('postText').value='';postTags.clear();renderTagRow();renderFeed();toast('已分享，愿被看见 💫');
+}
+function likePost(i){
+  const feed=DB.get('posts',null)||seedPosts();
+  feed[i].liked=!feed[i].liked;feed[i].likes+=feed[i].liked?1:-1;
+  DB.set('posts',feed);renderFeed();
+}
+function renderFeed(){
+  const feed=DB.get('posts',null)||seedPosts();
+  DB.set('posts',feed);
+  document.getElementById('feed').innerHTML=feed.map((p,i)=>`
+    <div class="post">
+      <div class="head">
+        <div class="avatar">${p.emo}</div>
+        <div><div class="name">${escapeHtml(p.name)}</div><div class="time">${timeAgo(p.ts)}</div></div>
+      </div>
+      ${(p.tags&&p.tags.length)?'<div>'+p.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')+'</div>':''}
+      <div class="text" style="margin-top:8px">${escapeHtml(p.text)}</div>
+      <div class="acts">
+        <span class="${p.liked?'liked':''}" onclick="likePost(${i})">${p.liked?'❤️':'🤍'} ${p.likes}</span>
+        <span>🙏 祝福</span>
+      </div>
+    </div>`).join('');
+}
+
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+/* ---------- init ---------- */
+initDaily();renderBreathModes();renderMoodGrid();renderMoodLog();renderTagRow();renderFeed();
+</script>
+</body>
+</html>
