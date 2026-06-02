@@ -132,6 +132,7 @@
         <button class="btn" onclick="go('mood')">📿 记录心情</button>
         <button class="btn" onclick="go('community')">💞 社区分享</button>
       </div>
+      <button class="btn full" onclick="downloadApp()">⬇ 下载到本地 · 离线使用</button>
     </div>
   </section>
 
@@ -218,6 +219,14 @@ function newQuote(){
   const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
   document.getElementById('dailyQuote').textContent='“'+q[0]+'”';
   document.getElementById('dailyFrom').textContent=q[1];
+}
+function downloadApp(){
+  fetch(location.href).then(r=>r.text()).then(html=>{
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='心园-身心灵.html';
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    toast('已开始下载 🌿 离线也能用');
+  }).catch(()=>toast('请用浏览器菜单「保存网页」'));
 }
 function initDaily(){
   const d=new Date();
