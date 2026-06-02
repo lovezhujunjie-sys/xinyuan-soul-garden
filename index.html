@@ -104,6 +104,7 @@
     display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#1a1f3a;margin-top:1px}
   .ci-t{font-size:15px;font-weight:600}
   .ci-d{font-size:13px;color:var(--muted);line-height:1.65;margin-top:3px}
+  .ci-badge{font-size:11px;color:var(--accent2);background:rgba(125,211,192,.18);padding:2px 9px;border-radius:999px;margin-left:6px;white-space:nowrap}
   .care-note{margin-top:16px;font-size:12px;color:var(--muted);background:rgba(251,191,119,.12);
     border:1px solid rgba(251,191,119,.28);border-radius:12px;padding:10px 13px;line-height:1.6}
 
@@ -456,6 +457,27 @@ const CARE={
     {t:'温水泡脚',d:'睡前用约 40℃ 温水泡脚 10–15 分钟，暖身、促进循环、帮助入睡。',sec:600,say:'泡脚时间，放松，感受脚下的温暖'},
     {t:'固定作息',d:'尽量同一时间上床和起床，周末也别差太多，生物钟会回报你。'},
   ]},
+  season:{name:'🌸 四时养生',intro:'出自《黄帝内经·四气调神大论》：顺应春生、夏长、秋收、冬藏，「春夏养阳，秋冬养阴」。下方会自动高亮当季。',items:[
+    {t:'春 · 养肝舒展',season:'spring',d:'夜卧早起，在庭中散步，披发松身，让心情舒畅生发，多走动、别压抑——「以使志生」。对应「养生（生发）」之道，少酸增甘以养脾。'},
+    {t:'夏 · 养心从容',season:'summer',d:'夜卧早起，不厌长日，使心境平和不躁怒，适当出汗散热——「使志无怒」。心静自然凉，午间小憩养心。对应「养长（长养）」之道。'},
+    {t:'秋 · 养肺收敛',season:'autumn',d:'早卧早起，与鸡俱兴，收敛神气、保持安宁以缓秋之肃杀——「使志安宁」。天干物燥，多润燥（梨、银耳、温水）。对应「养收（收敛）」之道。'},
+    {t:'冬 · 养肾闭藏',season:'winter',d:'早卧晚起，必待日光；注意保暖、藏精蓄锐，不过度消耗、不大汗淋漓——「使志若伏若匿」。安静守神。对应「养藏（闭藏）」之道。'},
+  ]},
+  neijing:{name:'📜 黄帝内经',intro:'《黄帝内经》的养生总纲——两千年前关于身心安顿之道。',note:'以下为传统养生文化与生活理念，用于日常调养身心；身体不适请及时就医，不替代医疗诊治。',items:[
+    {t:'法于阴阳，起居有常',d:'《素问·上古天真论》：「食饮有节，起居有常，不妄作劳」——顺应自然节律，吃有度、睡规律、别过劳，是一切养生的根。'},
+    {t:'恬惔虚无，精神内守',d:'「恬惔虚无，真气从之；精神内守，病安从来」——心态恬淡、少欲安宁，把注意力收回内在；情绪稳了，身体自安。'},
+    {t:'虚邪贼风，避之有时',d:'对反常的风寒暑湿（外邪）及时回避——天冷加衣、别久吹空调冷风、不硬扛，防患于身。'},
+    {t:'上工治未病',d:'最好的养生，是在没病时就调养预防，而不是病了才治。日常的好习惯，就是最好的药。'},
+    {t:'顺四时，和喜怒',d:'《灵枢》：「智者之养生也，必顺四时而适寒暑，和喜怒而安居处」——随季节调整、调和情绪、安顿身心。'},
+  ]},
+  classics:{name:'🩺 医典精萃',intro:'张仲景《伤寒杂病论》与历代医家的养生智慧（养生理念，非药方）。',note:'仅为养生理念整理，不含诊疗建议；具体病症与用药请遵医嘱。',items:[
+    {t:'保胃气，存津液（张仲景）',d:'《伤寒杂病论》重在顾护「胃气」、保存「津液」——养护脾胃、不滥伤正气。病中宜温软清淡（如热稀粥），忌生冷油腻辛辣。'},
+    {t:'四季脾旺不受邪（张仲景）',d:'《金匮要略》：脾胃强健，四季都不易被外邪侵扰。养好脾胃，是养生的根基（呼应本页「温和养胃」）。'},
+    {t:'见肝之病，当先实脾',d:'「见肝之病，知肝传脾，当先实脾」——既病防变、先护住还没受累的脏腑。引申：防患于未然，别等小问题拖大。'},
+    {t:'饮食有节、有宜有忌',d:'《金匮要略》：「所食之味，有与身为害……若得宜则益体，害则成疾」——吃对了养身、吃错了伤身；清淡有节、忌暴饮暴食。'},
+    {t:'动则不衰（孙思邈 / 吕氏春秋）',d:'「流水不腐，户枢不蠹」「人欲劳于形，百病不能成」——常活动、常舒展，气血流通则少病（呼应本页「拉伸放松」）。'},
+    {t:'少私寡欲，形神共养',d:'孙思邈《千金方》主张「莫忧思、莫大怒、莫大惧」，饮食以时、饥饱得中；嵇康《养生论》讲「清虚静泰，少私寡欲」——身心同养，情志平和。'},
+  ]},
 };
 let careCat='stretch';
 function renderCareTabs(){
@@ -463,14 +485,16 @@ function renderCareTabs(){
 }
 function pickCare(k){careCat=k;renderCareTabs();renderCareBody()}
 function fmtSec(s){return s>=60?(s%60?Math.floor(s/60)+'分'+(s%60)+'秒':Math.floor(s/60)+'分钟'):s+'秒'}
+function currentSeason(){const m=new Date().getMonth()+1;return (m===12||m<=2)?'winter':m<=5?'spring':m<=8?'summer':'autumn'}
 function renderCareBody(){
   const c=CARE[careCat];
   let html=`<div class="care-intro">${c.intro}</div>`;
   const timed=c.items.filter(x=>x.sec).length;
   if(careCat==='stretch'&&timed>0)html+=`<button class="btn primary full" style="margin:0 0 6px" onclick="startCareSeq('stretch')">▶ 跟练全套（${timed} 个动作）</button>`;
-  html+=c.items.map((it,i)=>`<div class="care-item"><div class="ci-no">${i+1}</div><div style="flex:1">
-    <div class="ci-t">${it.t}</div><div class="ci-d">${it.d}</div>
-    ${it.sec?`<button class="btn" style="margin-top:10px" onclick="playOne('${careCat}',${i})">▶ 跟练 ${fmtSec(it.sec)}</button>`:''}${it.act||''}</div></div>`).join('');
+  const se=currentSeason();
+  html+=c.items.map((it,i)=>{const now=careCat==='season'&&it.season===se;return `<div class="care-item"><div class="ci-no">${i+1}</div><div style="flex:1">
+    <div class="ci-t">${it.t}${now?' <span class="ci-badge">当季 🌿</span>':''}</div><div class="ci-d">${it.d}</div>
+    ${it.sec?`<button class="btn" style="margin-top:10px" onclick="playOne('${careCat}',${i})">▶ 跟练 ${fmtSec(it.sec)}</button>`:''}${it.act||''}</div></div>`}).join('');
   if(c.note)html+=`<div class="care-note">⚕ ${c.note}</div>`;
   document.getElementById('careBody').innerHTML=html;
 }
