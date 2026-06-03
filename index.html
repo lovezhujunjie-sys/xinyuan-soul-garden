@@ -76,6 +76,15 @@
   /* daily card */
   .daily{background:linear-gradient(135deg,rgba(167,139,250,.25),rgba(125,211,192,.18));text-align:center;padding:32px 24px;position:relative;overflow:hidden}
   .daily .quote{font-size:20px;line-height:1.8;font-weight:500;position:relative}
+  #favBtn.on{background:linear-gradient(135deg,rgba(251,191,119,.35),rgba(167,139,250,.3));border-color:rgba(251,191,119,.5)}
+  .daily .fav-link{margin-top:12px;font-size:12.5px;color:var(--muted);letter-spacing:1px;cursor:pointer;opacity:.85;min-height:16px}
+  .daily .fav-link:hover{color:var(--accent2)}
+  .daily .fav-list{margin-top:12px;text-align:left;border-top:1px solid var(--card-br);padding-top:12px}
+  .daily .fav-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .daily .fav-item:last-child{border-bottom:none}
+  .daily .fav-item .ft{flex:1;font-size:14px;line-height:1.6}
+  .daily .fav-item .ff{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+  .daily .fav-item .entry-del{position:static;margin-left:0}
   .daily .from{margin-top:14px;color:var(--muted);font-size:13px}
   .daily .greeting{font-size:15px;color:var(--accent2);letter-spacing:1px;margin-bottom:8px;font-weight:500}
   .daily .date{font-size:12px;color:var(--muted);letter-spacing:3px;margin-bottom:14px}
@@ -346,8 +355,11 @@
       <div class="from" id="dailyFrom"></div>
       <div class="row" style="justify-content:center;margin-top:14px">
         <button class="btn" onclick="newQuote()">换一句 ✨</button>
-        <button class="btn" onclick="shareQuote()">分享这句话 🎁</button>
+        <button class="btn" id="favBtn" onclick="toggleFav()">♡ 收藏</button>
+        <button class="btn" onclick="shareQuote()">分享 🎁</button>
       </div>
+      <div class="fav-link" id="favLink" onclick="toggleFavList()"></div>
+      <div class="fav-list" id="favList" style="display:none"></div>
     </div>
     <div class="card">
       <div class="section-title">今天，你想从哪里开始？</div>
@@ -539,7 +551,7 @@ const DB = {
 };
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
 /* ---------- 数据备份:导出/导入(守护每个人的修行旅程) ---------- */
-const DB_KEYS=['mood','posts','gratitude','activity'];
+const DB_KEYS=['mood','posts','gratitude','activity','favquotes'];
 function exportData(){
   try{
     const data={};DB_KEYS.forEach(k=>{const v=localStorage.getItem('xy_'+k);if(v!=null)data[k]=JSON.parse(v)});
@@ -632,6 +644,36 @@ function newQuote(){
   const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
   document.getElementById('dailyQuote').textContent='“'+q[0]+'”';
   document.getElementById('dailyFrom').textContent=q[1];
+  refreshFav();
+}
+/* 心语珍藏:把打动你的句子留下来,难过时再回来读一读——这是你给自己的光 */
+function curQuote(){return {t:(document.getElementById('dailyQuote').textContent||'').replace(/[“”"]/g,'').trim(),f:(document.getElementById('dailyFrom').textContent||'').trim()};}
+function getFavs(){return DB.get('favquotes',[])}
+function toggleFav(){
+  const q=curQuote();if(!q.t)return;
+  let favs=getFavs();const i=favs.findIndex(x=>x.t===q.t);
+  if(i>=0){favs.splice(i,1);toast('已取出珍藏 🌙');}else{favs.unshift(q);toast('已珍藏这句话 🤍');}
+  DB.set('favquotes',favs);refreshFav();
+}
+function refreshFav(){
+  const q=curQuote(),favs=getFavs(),isFav=favs.some(x=>x.t===q.t);
+  const btn=document.getElementById('favBtn');if(btn){btn.classList.toggle('on',isFav);btn.textContent=isFav?'♥ 已收藏':'♡ 收藏';}
+  const link=document.getElementById('favLink');
+  if(link)link.textContent=favs.length?`🤍 我珍藏的心语 · ${favs.length} 句`:'';
+  const list=document.getElementById('favList');
+  if(list&&list.style.display!=='none')renderFavList();
+}
+function toggleFavList(){
+  const list=document.getElementById('favList');if(!list)return;
+  if(list.style.display==='none'){renderFavList();list.style.display='block';}else list.style.display='none';
+}
+function renderFavList(){
+  const list=document.getElementById('favList'),favs=getFavs();
+  if(!favs.length){list.innerHTML='<div class="empty">还没有珍藏。遇到打动你的句子，点「♡ 收藏」留下它。</div>';return}
+  list.innerHTML=favs.map((q,i)=>`<div class="fav-item"><div class="ft">${escapeHtml(q.t)}<span class="ff">${escapeHtml(q.f||'')}</span></div><button class="entry-del" title="取出珍藏" aria-label="取出这句珍藏" onclick="delFav(${i})">×</button></div>`).join('');
+}
+function delFav(i){
+  const favs=getFavs();favs.splice(i,1);DB.set('favquotes',favs);renderFavList();refreshFav();
 }
 /* 把今天的心语画成一张温柔的图,送给朋友——让平安喜乐在人与人之间流动 */
 function shareQuote(){
@@ -744,6 +786,7 @@ function initDaily(){
   const q=QUOTES[idx];
   document.getElementById('dailyQuote').textContent='“'+q[0]+'”';
   document.getElementById('dailyFrom').textContent=q[1];
+  refreshFav();
 }
 
 /* ---------- breathing ---------- */
