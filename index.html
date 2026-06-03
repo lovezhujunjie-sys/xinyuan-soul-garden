@@ -92,6 +92,9 @@
   .daily .fav-item .entry-del{position:static;margin-left:0}
   .daily .from{margin-top:14px;color:var(--muted);font-size:13px}
   .daily .greeting{font-size:15px;color:var(--accent2);letter-spacing:1px;margin-bottom:8px;font-weight:500}
+  .recall-grat{margin-top:14px;padding:12px 15px;border-radius:14px;background:rgba(244,180,120,.09);
+    border:1px solid rgba(244,180,120,.18);font-size:13.5px;color:var(--accent3);line-height:1.7;text-align:center}
+  .recall-grat .rg-lead{font-size:12px;opacity:.8;letter-spacing:1px;display:block;margin-bottom:4px}
   .sleep-invite{margin-top:14px;padding:13px 15px;border-radius:14px;background:rgba(120,140,200,.1);
     border:1px solid rgba(120,140,200,.18);display:flex;flex-direction:column;gap:10px;align-items:center;
     font-size:14px;color:var(--accent2);line-height:1.6;text-align:center}
@@ -368,6 +371,7 @@
       </div>
       <div class="fav-link" id="favLink" onclick="toggleFavList()"></div>
       <div class="fav-list" id="favList" style="display:none"></div>
+      <div class="recall-grat" id="recallGrat" style="display:none"></div>
       <div class="sleep-invite" id="sleepInvite" style="display:none">
         <span>夜深了，要不要跟着做几次安眠呼吸，让身体慢慢沉下来？🌙</span>
         <button class="btn" onclick="startSleepBreath()">开始安眠呼吸</button>
@@ -816,6 +820,20 @@ function initDaily(){
   document.getElementById('dailyQuote').textContent='“'+q[0]+'”';
   document.getElementById('dailyFrom').textContent=q[1];
   refreshFav();
+  renderRecallGrat();
+}
+/* 时光里的感恩:温柔重温一条过往(非今天)的感恩,看见自己一路收下的好 */
+function renderRecallGrat(){
+  const el=document.getElementById('recallGrat');if(!el)return;
+  const log=DB.get('gratitude',[]);
+  const dayStart=new Date();dayStart.setHours(0,0,0,0);
+  const past=log.filter(e=>e.ts<dayStart.getTime()&&e.items&&e.items.length);
+  if(!past.length){el.style.display='none';return;}
+  const entry=past[Math.floor(Math.random()*past.length)];
+  const item=entry.items[Math.floor(Math.random()*entry.items.length)];
+  const d=new Date(entry.ts),when=`${d.getMonth()+1}月${d.getDate()}日`;
+  el.innerHTML='<span class="rg-lead">🌼 时光里的感恩 · '+when+'</span>“'+escapeHtml(item)+'”';
+  el.style.display='block';
 }
 
 /* ---------- breathing ---------- */
