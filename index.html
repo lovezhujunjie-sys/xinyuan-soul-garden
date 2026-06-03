@@ -342,7 +342,10 @@
       <div class="date" id="todayDate"></div>
       <div class="quote" id="dailyQuote">载入中…</div>
       <div class="from" id="dailyFrom"></div>
-      <button class="btn full" onclick="newQuote()">换一句 ✨</button>
+      <div class="row" style="justify-content:center;margin-top:14px">
+        <button class="btn" onclick="newQuote()">换一句 ✨</button>
+        <button class="btn" onclick="shareQuote()">分享这句话 🎁</button>
+      </div>
     </div>
     <div class="card">
       <div class="section-title">今天，你想从哪里开始？</div>
@@ -617,6 +620,53 @@ function newQuote(){
   const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
   document.getElementById('dailyQuote').textContent='“'+q[0]+'”';
   document.getElementById('dailyFrom').textContent=q[1];
+}
+/* 把今天的心语画成一张温柔的图,送给朋友——让平安喜乐在人与人之间流动 */
+function shareQuote(){
+  const quote=(document.getElementById('dailyQuote').textContent||'').replace(/[“”"]/g,'').trim();
+  const from=(document.getElementById('dailyFrom').textContent||'').replace(/^[—\-\s]+/,'').trim();
+  if(!quote){toast('稍等，心语还在路上');return}
+  const W=1080,H=1080,cv=document.createElement('canvas');cv.width=W;cv.height=H;
+  const x=cv.getContext('2d');
+  const g=x.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,'#1a1f3a');g.addColorStop(.55,'#2d2a52');g.addColorStop(1,'#3d3268');
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  // 柔光晕
+  [['#7c5cff',260,300,.32],['#2dd4bf',820,760,.26],['#fbbf77',840,260,.16]].forEach(([c,cx,cy,a])=>{
+    const rg=x.createRadialGradient(cx,cy,0,cx,cy,360);rg.addColorStop(0,c);rg.addColorStop(1,'rgba(0,0,0,0)');
+    x.globalAlpha=a;x.fillStyle=rg;x.beginPath();x.arc(cx,cy,360,0,7);x.fill();
+  });
+  x.globalAlpha=1;
+  // 开口引号
+  x.fillStyle='rgba(167,139,250,.55)';x.font='600 150px Georgia,serif';x.textAlign='left';x.fillText('“',110,250);
+  // 正文换行
+  const ff='600 52px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
+  x.font=ff;x.fillStyle='#f5f3ff';x.textAlign='left';x.textBaseline='alphabetic';
+  const maxW=W-220,lh=82,lines=[];let cur='';
+  for(const ch of quote){const t=cur+ch;if(x.measureText(t).width>maxW&&cur){lines.push(cur);cur=ch;}else cur=t;}
+  if(cur)lines.push(cur);
+  let y=H/2-(lines.length-1)*lh/2;
+  lines.forEach(l=>{x.fillText(l,110,y);y+=lh;});
+  // 出处
+  if(from){x.font='400 34px -apple-system,"PingFang SC",sans-serif';x.fillStyle='#c9c4e6';x.fillText('— '+from,110,y+30);}
+  // 页脚
+  x.textAlign='center';x.font='500 36px -apple-system,"PingFang SC",sans-serif';
+  x.fillStyle='#7dd3c0';x.fillText('心 园 · 愿你平安喜乐',W/2,H-90);
+  x.font='400 26px -apple-system,"PingFang SC",sans-serif';x.fillStyle='rgba(201,196,230,.7)';
+  x.fillText('愿这份温柔，从你心间流向世界 🤍',W/2,H-50);
+  // 导出 → 优先系统分享,否则下载
+  cv.toBlob(blob=>{
+    if(!blob){toast('生成失败，再试一次吧');return}
+    const file=new File([blob],'心园-今日心语.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:'心园 · 今日心语',text:quote+(from?(' —'+from):'')}).then(()=>toast('愿这份温柔被传递 🤍')).catch(()=>{});
+    }else{
+      const url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download='心园-今日心语.png';document.body.appendChild(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+      toast('已存成图片，去分享给在意的人吧 🎁');
+    }
+  },'image/png');
 }
 /* ---------- 慈心祝福(metta):由己及人,直至众生,愿全人类平安喜乐 ---------- */
 const METTA=[
