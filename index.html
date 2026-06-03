@@ -219,6 +219,15 @@
   .crisis .hot a b{font-size:15px;letter-spacing:1px;color:var(--accent2)}
   .crisis .tip{margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6}
   .crisis .cls{float:right;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:0 2px}
+
+  /* 慈心祝福 metta */
+  .metta{background:linear-gradient(135deg,rgba(251,191,119,.16),rgba(167,139,250,.16))}
+  .metta-intro{font-size:13px;color:var(--muted);line-height:1.75;margin:0 0 16px}
+  .metta-stage{min-height:64px;display:flex;align-items:center;justify-content:center;text-align:center;
+    font-size:21px;line-height:1.6;font-weight:500;letter-spacing:1px;margin:6px 0 16px;
+    transition:opacity .9s ease,transform .9s ease}
+  .metta-stage.dim{opacity:0;transform:translateY(8px)}
+  .metta .btn.primary.on{background:linear-gradient(135deg,var(--accent3),#f0a85a)}
 </style>
 </head>
 <body>
@@ -247,6 +256,14 @@
         <button class="btn" onclick="go('community')">💞 社区分享</button>
       </div>
       <button class="btn full" onclick="downloadApp()">⬇ 下载到本地 · 离线使用</button>
+    </div>
+    <div class="card metta">
+      <div class="section-title">慈心祝福 · 让爱流动 🤍</div>
+      <div class="metta-intro">古老的慈心练习：先把善意送给自己，再一圈圈扩展到所爱的人、陌生人，直到世间每一个生命。愿全人类都被这份温柔接住。</div>
+      <div class="metta-stage" id="mettaStage" aria-live="polite">愿我，平安喜乐</div>
+      <div class="row" style="justify-content:center">
+        <button class="btn primary" id="mettaBtn" onclick="toggleMetta()">送出一份祝福 🤍</button>
+      </div>
     </div>
   </section>
 
@@ -436,6 +453,7 @@ function go(v){
   document.getElementById('view-'+v).classList.add('active');
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   if(v!=='breath'){Ambient.stop();renderAmbPills();stopBreath();}
+  if(v!=='home'&&typeof stopMetta==='function')stopMetta();
   if(v==='grow')renderGrow();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -460,12 +478,64 @@ const QUOTES=[
   ["上工治未病——最好的养生，在病来之前。","《黄帝内经》"],
   ["流水不腐，户枢不蠹；动则不衰。","《吕氏春秋》"],
   ["清虚静泰，少私寡欲，形神共养。","嵇康《养生论》"],
-  ["四季脾旺不受邪。","张仲景《金匮要略》"]
+  ["四季脾旺不受邪。","张仲景《金匮要略》"],
+  ["你不需要变得更好才值得被爱，此刻的你就很好。","— 自我慈悲"],
+  ["慢慢来，比较快。给自己一点时间，花会开的。","— 心园"],
+  ["疲惫的时候，休息不是偷懒，是对自己温柔。","— 心园"],
+  ["把今天过好，就是对人生最大的虔诚。","— 心园"],
+  ["愿你既能拥抱世界，也能安住于自己的内心。","— 慈心祝福"],
+  ["呼吸还在，希望就在。","— 心园"],
+  ["你已经走了很远了，回头看看，为自己骄傲一下。","— 心园"],
+  ["情绪像天气，会来也会走，你是那片始终都在的天空。","— 正念"],
+  ["与其追逐光，不如成为温暖别人的那束光。","— 心园"],
+  ["善待自己的身体，它是你今生唯一的居所。","— 心园"],
+  ["所谓平安喜乐，是在平凡里看见恩典。","— 感恩练习"],
+  ["你今天愿意照顾自己，这件事本身就很了不起。","— 心园"],
+  ["心宽一寸，路宽一丈。","— 民间智慧"],
+  ["知足者常乐，能忍者自安。","— 处世箴言"],
+  ["但行好事，莫问前程。","— 《增广贤文》"]
 ];
 function newQuote(){
   const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
   document.getElementById('dailyQuote').textContent='“'+q[0]+'”';
   document.getElementById('dailyFrom').textContent=q[1];
+}
+/* ---------- 慈心祝福(metta):由己及人,直至众生,愿全人类平安喜乐 ---------- */
+const METTA=[
+  '愿我，平安喜乐','愿我，身体健康','愿我，自在安宁，温柔地对待自己',
+  '愿我所爱的人，平安喜乐','愿我所爱的人，远离痛苦，被这世界温柔以待',
+  '愿我身边的人、擦肩而过的人，都被善意环绕',
+  '愿此刻正在受苦的人，得到安慰与力量',
+  '愿素未谋面的你，也被生活温柔相待',
+  '愿全天下的人，都平安喜乐','愿世间一切生命，离苦得乐，自在安宁',
+  '愿这份温柔，从你我心间，流向整个世界 🤍'
+];
+let mettaTimer=null,mettaIdx=0;
+function showMetta(i){
+  const s=document.getElementById('mettaStage');if(!s)return;
+  s.classList.add('dim');
+  setTimeout(()=>{s.textContent=METTA[i];s.classList.remove('dim');},700);
+}
+function toggleMetta(){
+  const btn=document.getElementById('mettaBtn');
+  if(mettaTimer){stopMetta();return}
+  mettaIdx=0;showMetta(0);
+  btn.textContent='静静感受… (点此结束)';btn.classList.add('on');
+  mettaTimer=setInterval(()=>{
+    mettaIdx++;
+    if(mettaIdx>=METTA.length){
+      clearInterval(mettaTimer);mettaTimer=null;
+      logActivity('metta');
+      btn.textContent='再送一次 🤍';btn.classList.remove('on');return;
+    }
+    showMetta(mettaIdx);
+  },5600);
+}
+function stopMetta(){
+  if(mettaTimer){clearInterval(mettaTimer);mettaTimer=null}
+  const btn=document.getElementById('mettaBtn');
+  if(btn){btn.textContent='送出一份祝福 🤍';btn.classList.remove('on')}
+  const s=document.getElementById('mettaStage');if(s){s.classList.remove('dim');s.textContent='愿我，平安喜乐'}
 }
 function downloadApp(){
   fetch(location.href).then(r=>r.text()).then(html=>{
