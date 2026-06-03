@@ -61,6 +61,6 @@ python3 -m http.server --directory ~/.claude/skills/身心灵 8910
 
 - 所有用户输入都已 `escapeHtml()` 转义，新增展示用户内容的地方务必沿用，防 XSS。
 - 保持单文件、零依赖的轻量原则，除非用户同意引入后端/框架。
-- **无障碍 a11y**：已有全局 `:focus-visible` 焦点环、`@media (prefers-reduced-motion:reduce)` 降低动效、`#breathMeta`/`#plTitle` 的 `aria-live`、跟练浮层 `role="dialog"` + Esc 关闭。新增交互/动效请沿用这些约定。
+- **无障碍 a11y**：已有全局 `:focus-visible` 焦点环、`@media (prefers-reduced-motion:reduce)` 降低动效、`#breathMeta`/`#plTitle` 的 `aria-live`、跟练浮层 `role="dialog"` + Esc 关闭。新增交互/动效请沿用这些约定。**舒适阅读字号**：标题栏右上「A+」按钮（`#a11yBtn` / `cycleTextScale()`）三档循环（标准/大/特大），用 `zoom`（`.app.scale-1/2` + `.nav.scale-1/2`）整体等比放大、留白同步放大，存 `xy_textscale`，`applyTextScale()` 在 init 时恢复——守护看屏吃力的长辈与低视力用户（直击「全人类温柔可及」）。
 - **跟练计时器**用 `PL.adv`（setTimeout id）+ `PL.raf` 防止快速「下一个」时定时器叠加；切走呼吸 tab 时 `go()` 会调 `stopBreath()` 防止后台计时泄漏。
 - **医疗免责**：拉伸/八段锦/养胃/助眠/养生等养护内容均带 `note` 字段温柔提示「不适请就医、特殊人群先咨询医生」，新增养护内容请一并加 `note`。
