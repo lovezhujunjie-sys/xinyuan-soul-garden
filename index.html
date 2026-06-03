@@ -111,6 +111,9 @@
   .post .acts span{cursor:pointer;transition:.2s;user-select:none;padding:7px 8px;border-radius:10px}
   .post .acts span:hover{color:var(--accent)}
   .post .acts span.liked{color:#ff8fa3}
+  .post .acts span.blessed{color:var(--accent3)}
+  .post .head .post-del{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;padding:6px 8px;border-radius:10px;transition:.2s}
+  .post .head .post-del:hover{color:#ff8fa3;background:rgba(255,255,255,.08)}
   .tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;background:rgba(167,139,250,.2);color:var(--accent);margin-right:6px}
 
   /* care 养护 */
@@ -698,23 +701,37 @@ function renderTagRow(){
 function toggleTag(t){postTags.has(t)?postTags.delete(t):postTags.add(t);renderTagRow()}
 function seedPosts(){
   return [
-    {name:'静水',emo:'🌿',text:'今天试着在地铁上闭眼做了十次深呼吸，下车时整个人都松了下来。原来平静一直都在，只是我太忙忘了回来。',tags:['#正念','#呼吸'],likes:12,liked:false,ts:Date.now()-3600e3*5},
-    {name:'晨光',emo:'☀️',text:'感恩今天：温热的早餐、朋友的一句问候、窗外的鸟鸣。幸福其实由很多微小的瞬间组成。',tags:['#感恩'],likes:24,liked:false,ts:Date.now()-3600e3*26},
-    {name:'安然',emo:'🕊',text:'愿正在看这条的你，今天被温柔以待。如果累了，就允许自己休息，你已经做得很好了。',tags:['#祝福','#疗愈'],likes:58,liked:false,ts:Date.now()-3600e3*50},
+    {name:'静水',emo:'🌿',text:'今天试着在地铁上闭眼做了十次深呼吸，下车时整个人都松了下来。原来平静一直都在，只是我太忙忘了回来。',tags:['#正念','#呼吸'],likes:12,liked:false,bless:7,blessed:false,ts:Date.now()-3600e3*5},
+    {name:'晨光',emo:'☀️',text:'感恩今天：温热的早餐、朋友的一句问候、窗外的鸟鸣。幸福其实由很多微小的瞬间组成。',tags:['#感恩'],likes:24,liked:false,bless:15,blessed:false,ts:Date.now()-3600e3*26},
+    {name:'安然',emo:'🕊',text:'愿正在看这条的你，今天被温柔以待。如果累了，就允许自己休息，你已经做得很好了。',tags:['#祝福','#疗愈'],likes:58,liked:false,bless:39,blessed:false,ts:Date.now()-3600e3*50},
   ];
 }
+const BLESS_WORDS=['你的祝福已送达，愿爱流动 🙏','一份善意，正温柔地传出去 🤍','愿你与TA，都被这世界善待 🌿','谢谢你，让这里多了一分温暖 💫'];
 function addPost(){
   const text=document.getElementById('postText').value.trim();
   if(!text){toast('写点什么再发布吧');return}
   const feed=DB.get('posts',null)||seedPosts();
-  feed.unshift({name:'我',emo:'🌟',text,tags:[...postTags],likes:0,liked:false,ts:Date.now()});
+  feed.unshift({name:'我',emo:'🌟',text,tags:[...postTags],likes:0,liked:false,bless:0,blessed:false,mine:true,ts:Date.now()});
   DB.set('posts',feed);
-  document.getElementById('postText').value='';postTags.clear();renderTagRow();renderFeed();toast('已分享，愿被看见 💫');
+  document.getElementById('postText').value='';postTags.clear();renderTagRow();renderFeed();
+  logActivity('share');toast('已分享，愿被看见 💫');
 }
 function likePost(i){
   const feed=DB.get('posts',null)||seedPosts();
   feed[i].liked=!feed[i].liked;feed[i].likes+=feed[i].liked?1:-1;
   DB.set('posts',feed);renderFeed();
+}
+function blessPost(i){
+  const feed=DB.get('posts',null)||seedPosts();
+  const p=feed[i];p.blessed=!p.blessed;p.bless=(p.bless||0)+(p.blessed?1:-1);
+  DB.set('posts',feed);renderFeed();
+  if(p.blessed)toast(BLESS_WORDS[Math.floor(Math.random()*BLESS_WORDS.length)]);
+}
+function delPost(i){
+  const feed=DB.get('posts',null)||seedPosts();
+  if(!feed[i]||!feed[i].mine)return;
+  if(!confirm('轻轻收回这条分享吗？'))return;
+  feed.splice(i,1);DB.set('posts',feed);renderFeed();toast('已收回 🌙');
 }
 function renderFeed(){
   const feed=DB.get('posts',null)||seedPosts();
@@ -724,12 +741,13 @@ function renderFeed(){
       <div class="head">
         <div class="avatar">${p.emo}</div>
         <div><div class="name">${escapeHtml(p.name)}</div><div class="time">${timeAgo(p.ts)}</div></div>
+        ${p.mine?`<button class="post-del" title="收回" aria-label="收回这条分享" onclick="delPost(${i})">🗑</button>`:''}
       </div>
       ${(p.tags&&p.tags.length)?'<div>'+p.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')+'</div>':''}
       <div class="text" style="margin-top:8px">${escapeHtml(p.text)}</div>
       <div class="acts">
-        <span class="${p.liked?'liked':''}" onclick="likePost(${i})">${p.liked?'❤️':'🤍'} ${p.likes}</span>
-        <span>🙏 祝福</span>
+        <span class="${p.liked?'liked':''}" onclick="likePost(${i})">${p.liked?'❤️':'🤍'} 共鸣 ${p.likes}</span>
+        <span class="${p.blessed?'blessed':''}" onclick="blessPost(${i})">🙏 祝福 ${p.bless||0}</span>
       </div>
     </div>`).join('');
 }
