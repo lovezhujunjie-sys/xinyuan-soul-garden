@@ -378,12 +378,13 @@
       </div>
     </div>
     <div class="card">
-      <div class="section-title">今天，你想从哪里开始？</div>
+      <div class="section-title">此刻，你想被怎样对待？</div>
       <div class="row">
-        <button class="btn primary" onclick="go('breath')">🌬 呼吸静心</button>
-        <button class="btn" onclick="go('mood')">📿 记录心情</button>
-        <button class="btn" onclick="go('care')">🌿 拉伸·养胃·助眠</button>
-        <button class="btn" onclick="go('community')">💞 社区分享</button>
+        <button class="btn primary" onclick="go('breath')">🌬 我想静一静</button>
+        <button class="btn" onclick="needCare('sleep')">😴 我睡不着</button>
+        <button class="btn" onclick="needCare('stretch')">🌿 身体累了，想舒展</button>
+        <button class="btn" onclick="go('mood')">📿 我想倾听自己</button>
+        <button class="btn" onclick="go('community')">💞 我想被陪伴</button>
       </div>
       <button class="btn full" onclick="downloadApp()">⬇ 下载到本地 · 离线使用</button>
     </div>
@@ -1221,6 +1222,8 @@ function renderCareBody(){
   document.getElementById('careBody').innerHTML=html;
 }
 function breathFor(i){go('breath');pickBreath(i)}
+/* 按当下的需要,温柔地带到养护页对应的小节 */
+function needCare(cat){go('care');if(CARE[cat]){pickCare(cat)}}
 
 /* ---------- 跟练计时器(倒计时环 + 提示音 + 语音,纯前端零依赖) ---------- */
 const RING_C=326.7;   // 2π·52
