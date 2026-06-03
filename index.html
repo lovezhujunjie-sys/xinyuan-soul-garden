@@ -237,6 +237,9 @@
   /* 成长:打卡 + 可视化 */
   .grow-streak{text-align:center;background:linear-gradient(135deg,rgba(251,191,119,.22),rgba(167,139,250,.18));padding:26px 20px}
   .grow-flame{font-size:46px;line-height:1}
+  .grow-mile{margin-top:10px;padding:8px 14px;border-radius:12px;display:inline-block;
+    background:rgba(244,180,120,.12);border:1px solid rgba(244,180,120,.25);color:var(--accent3);
+    font-size:13.5px;line-height:1.6}
   .grow-num{font-size:40px;font-weight:700;margin:2px 0;font-variant-numeric:tabular-nums}
   .grow-cap{color:var(--muted);font-size:13px;letter-spacing:1px}
   .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:6px}
@@ -472,6 +475,7 @@
       <div class="grow-flame">🔥</div>
       <div class="grow-num" id="streakNum">0</div>
       <div class="grow-cap" id="streakCap">连续修行 0 天</div>
+      <div class="grow-mile" id="streakMile" style="display:none"></div>
     </div>
     <div class="card weekly" id="weeklyCard">
       <div class="section-title">本周回顾 · 只看见，不评判</div>
@@ -1476,11 +1480,32 @@ function renderGrow(){
   const s=computeStreak();
   document.getElementById('streakNum').textContent=s;
   document.getElementById('streakCap').textContent=s>0?`连续修行 ${s} 天 · 真好`:'今天迈出第一步吧 🌱';
+  const mile=document.getElementById('streakMile'),mm=streakMilestone(s);
+  if(mm){mile.textContent=mm;mile.style.display='inline-block';}else{mile.style.display='none';}
   document.getElementById('stBreath').textContent=activityTotal('breath');
   document.getElementById('stMood').textContent=DB.get('mood',[]).length;
   document.getElementById('stCare').textContent=activityTotal('care');
   document.getElementById('stGrat').textContent=DB.get('gratitude',[]).reduce((s,e)=>s+e.items.length,0);
   renderHeat();renderTrend();renderWeekly();
+}
+/* 里程碑:温柔地看见自己的坚持,只祝福不施压(看见自己的光) */
+const MILES=[
+  {d:3,m:'坚持 3 天，习惯正在生根 🌱'},
+  {d:7,m:'满一周了！你正温柔地善待自己 🌷'},
+  {d:14,m:'两周啦，平静在慢慢长进生活里 🍃'},
+  {d:21,m:'21 天，一个温柔的新习惯成形了 ✨'},
+  {d:30,m:'整整一个月！谢谢你这样陪着自己 💗'},
+  {d:50,m:'50 天，你把照顾自己活成了日常 🌿'},
+  {d:100,m:'100 天！这是一份了不起的温柔坚持 🏵'},
+  {d:200,m:'200 天，你已是自己最稳的依靠 🌙'},
+  {d:365,m:'整整一年了，愿你继续平安喜乐 🌟'},
+];
+function streakMilestone(s){
+  if(s<=0)return '';
+  const exact=MILES.find(x=>x.d===s);
+  if(exact)return '🎉 '+exact.m;
+  const reached=[...MILES].reverse().find(x=>x.d<s);
+  return reached?('🌟 已走过 '+reached.d+' 天里程碑，继续陪着自己'):'';
 }
 /* 本周温柔回顾:只看见、不评判、不打分。把这一周的修行轻轻说给自己听。 */
 const MOOD_WARM={'😣':'有些艰难','😔':'有些低落','😐':'平平淡淡','🙂':'还算平和','😊':'挺开心','😌':'很安然','🥰':'被爱包围','😴':'有点疲惫','😤':'有些憋闷','🤗':'温暖满满'};
