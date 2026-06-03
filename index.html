@@ -126,6 +126,8 @@
     padding:16px;border-radius:16px;background:rgba(125,211,192,.08);border:1px solid rgba(125,211,192,.16);margin-bottom:12px}
   .ground-stage .gs-num{font-size:34px;font-weight:700;color:var(--accent2);display:block;margin-bottom:6px;letter-spacing:1px}
   .ground-stage .gs-text{font-size:15px;line-height:1.7;color:var(--text)}
+  .micro-text{font-size:15px;line-height:1.8;color:var(--text);margin-bottom:12px}
+  .micro-card .btn.done{background:rgba(125,211,192,.18);border-color:rgba(125,211,192,.4);color:var(--accent2)}
   .pill-row{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
   .pill{padding:11px 18px;border-radius:999px;font-size:13px;cursor:pointer;border:1px solid var(--card-br);background:rgba(255,255,255,.06);transition:.2s}
   .pill.on{background:linear-gradient(135deg,var(--accent),#7c5cff);border-color:transparent}
@@ -392,6 +394,11 @@
         <button class="btn" onclick="go('community')">💞 我想被陪伴</button>
       </div>
       <button class="btn full" onclick="downloadApp()">⬇ 下载到本地 · 离线使用</button>
+    </div>
+    <div class="card micro-card">
+      <div class="section-title">🌱 今日微练习</div>
+      <div class="micro-text" id="microText"></div>
+      <button class="btn" id="microBtn" onclick="doMicro()">✓ 我做到了</button>
     </div>
     <div class="card metta">
       <div class="section-title">慈心祝福 · 让爱流动 🤍</div>
@@ -835,6 +842,39 @@ function initDaily(){
   document.getElementById('dailyFrom').textContent=q[1];
   refreshFav();
   renderRecallGrat();
+  renderMicro();
+}
+/* 今日微练习:每天一个小小的、做得到的善待自己的动作 */
+const MICRO_PRACTICES=[
+  '对着镜子，对自己说一句温柔的话：「今天也辛苦了。」',
+  '此刻深呼吸三次，每次呼气时，放下一点点肩膀的紧张。',
+  '给自己倒一杯温水，慢慢喝完，只是喝水，什么都不想。',
+  '找一样让你安心的小东西，握在手里待一会儿。',
+  '走到窗边，看看远处，让眼睛和心都歇一歇。',
+  '给一个在意的人发条消息，告诉TA：想你了。',
+  '做一件拖延很久的小事，哪怕只花一分钟。',
+  '此刻，把注意力放在脚踩着地面的感觉上，你是被稳稳托住的。',
+  '今天允许自己拒绝一件不想做的事，温柔但坚定。',
+  '睡前回想今天一个微小的好瞬间，带着它入睡。',
+  '给自己一个拥抱，双手环住肩膀，停留十秒。',
+  '放下手机五分钟，听一首喜欢的歌，专心地听。',
+];
+function microKey(){const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
+function renderMicro(){
+  const t=document.getElementById('microText'),b=document.getElementById('microBtn');
+  if(!t)return;
+  const d=new Date();
+  const idx=(d.getFullYear()+d.getMonth()*31+d.getDate())%MICRO_PRACTICES.length;
+  t.textContent=MICRO_PRACTICES[idx];
+  const done=DB.get('microDone','')===microKey();
+  b.textContent=done?'今天已完成 🌟':'✓ 我做到了';
+  b.classList.toggle('done',done);
+}
+function doMicro(){
+  if(DB.get('microDone','')===microKey()){toast('今天已经做到了，你真好 🌟');return;}
+  DB.set('microDone',microKey());
+  renderMicro();
+  toast('又一次温柔地善待了自己 🌱');
 }
 /* 时光里的感恩:温柔重温一条过往(非今天)的感恩,看见自己一路收下的好 */
 function renderRecallGrat(){
