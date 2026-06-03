@@ -121,6 +121,11 @@
     @keyframes breatheIdle{0%,100%{transform:scale(.94);box-shadow:0 0 40px var(--glow)}50%{transform:scale(1.06);box-shadow:0 0 72px var(--glow)}}
   }
   .breath-meta{color:var(--muted);font-size:13px;margin-top:6px;min-height:18px;transition:.3s}
+  .ground-intro{color:var(--muted);font-size:13.5px;line-height:1.7;margin-bottom:12px}
+  .ground-stage{min-height:96px;display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:16px;border-radius:16px;background:rgba(125,211,192,.08);border:1px solid rgba(125,211,192,.16);margin-bottom:12px}
+  .ground-stage .gs-num{font-size:34px;font-weight:700;color:var(--accent2);display:block;margin-bottom:6px;letter-spacing:1px}
+  .ground-stage .gs-text{font-size:15px;line-height:1.7;color:var(--text)}
   .pill-row{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
   .pill{padding:11px 18px;border-radius:999px;font-size:13px;cursor:pointer;border:1px solid var(--card-br);background:rgba(255,255,255,.06);transition:.2s}
   .pill.on{background:linear-gradient(135deg,var(--accent),#7c5cff);border-color:transparent}
@@ -415,6 +420,14 @@
           <span>🔊</span>
         </div>
       </div>
+    </div>
+    <div class="card ground-card">
+      <div class="section-title">🌍 着陆练习 · 5-4-3-2-1</div>
+      <div class="ground-intro">焦虑、慌乱或思绪太满时，用五感把自己轻轻带回此时此地。不急，一步一步来。</div>
+      <div class="ground-stage" id="groundStage" aria-live="polite">
+        <div class="gs-text">准备好了，就开始吧。这里很安全。</div>
+      </div>
+      <button class="btn primary full" id="groundBtn" onclick="groundStep()">开始着陆</button>
     </div>
   </section>
 
@@ -1224,6 +1237,26 @@ function renderCareBody(){
 function breathFor(i){go('breath');pickBreath(i)}
 /* 按当下的需要,温柔地带到养护页对应的小节 */
 function needCare(cat){go('care');if(CARE[cat]){pickCare(cat)}}
+/* 5-4-3-2-1 着陆练习:用五感把注意力带回此时此地,缓解焦虑慌乱 */
+const GROUND_STEPS=[
+  {n:'5',t:'环顾四周，慢慢找出你能<b>看见</b>的 5 样东西。看看它们的颜色、形状。'},
+  {n:'4',t:'静下来，留意 4 种你能<b>听见</b>的声音——远的、近的，都可以。'},
+  {n:'3',t:'感受 3 种身体正接触到的<b>触感</b>：衣物、椅子、脚下的地面。'},
+  {n:'2',t:'深吸一口气，找出 2 种你能<b>闻到</b>的气味。'},
+  {n:'1',t:'留意嘴里 1 种<b>味道</b>，或喝一小口水，慢慢咽下。'},
+];
+let groundIdx=-1;
+function groundStep(){
+  const stage=document.getElementById('groundStage'),btn=document.getElementById('groundBtn');
+  groundIdx++;
+  if(groundIdx>=GROUND_STEPS.length){
+    stage.innerHTML='<div class="gs-text">你已经回到此时此地了 🤍 这里是安全的，慢慢来。</div>';
+    btn.textContent='再做一次';groundIdx=-1;return;
+  }
+  const s=GROUND_STEPS[groundIdx];
+  stage.innerHTML='<div><span class="gs-num">'+s.n+'</span><div class="gs-text">'+s.t+'</div></div>';
+  btn.textContent=groundIdx<GROUND_STEPS.length-1?'下一步':'完成';
+}
 
 /* ---------- 跟练计时器(倒计时环 + 提示音 + 语音,纯前端零依赖) ---------- */
 const RING_C=326.7;   // 2π·52
