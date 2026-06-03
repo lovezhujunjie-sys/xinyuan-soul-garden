@@ -168,11 +168,12 @@
   .post .name{font-size:14px;font-weight:600}
   .post .time{font-size:11px;color:var(--muted)}
   .post .text{font-size:15px;line-height:1.65;white-space:pre-wrap}
-  .post .acts{display:flex;gap:12px;margin-top:8px;color:var(--muted);font-size:13px}
+  .post .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;color:var(--muted);font-size:13px}
   .post .acts span{cursor:pointer;transition:.2s;user-select:none;padding:7px 8px;border-radius:10px}
   .post .acts span:hover{color:var(--accent)}
   .post .acts span.liked{color:#ff8fa3}
   .post .acts span.blessed{color:var(--accent3)}
+  .post .acts span.hugged{color:var(--accent2)}
   .post .head .post-del{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;padding:6px 8px;border-radius:10px;transition:.2s}
   .post .head .post-del:hover{color:#ff8fa3;background:rgba(255,255,255,.08)}
   .tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;background:rgba(167,139,250,.2);color:var(--accent);margin-right:6px}
@@ -1124,6 +1125,13 @@ function blessPost(i){
   DB.set('posts',feed);renderFeed();
   if(p.blessed)toast(BLESS_WORDS[Math.floor(Math.random()*BLESS_WORDS.length)]);
 }
+const HUG_WORDS=['抱抱你，你不是一个人 🫂','轻轻抱住你，会好起来的 🤍','把这个拥抱传给你，慢慢来 🌷','隔着屏幕，也想给你一个温暖的拥抱 💗'];
+function hugPost(i){
+  const feed=DB.get('posts',null)||seedPosts();
+  const p=feed[i];p.hugged=!p.hugged;p.hug=(p.hug||0)+(p.hugged?1:-1);
+  DB.set('posts',feed);renderFeed();
+  if(p.hugged)toast(HUG_WORDS[Math.floor(Math.random()*HUG_WORDS.length)]);
+}
 function delPost(i){
   const feed=DB.get('posts',null)||seedPosts();
   if(!feed[i]||!feed[i].mine)return;
@@ -1145,6 +1153,7 @@ function renderFeed(){
       <div class="acts">
         <span class="${p.liked?'liked':''}" onclick="likePost(${i})">${p.liked?'❤️':'🤍'} 共鸣 ${p.likes}</span>
         <span class="${p.blessed?'blessed':''}" onclick="blessPost(${i})">🙏 祝福 ${p.bless||0}</span>
+        <span class="${p.hugged?'hugged':''}" onclick="hugPost(${i})">🫂 抱抱 ${p.hug||0}</span>
       </div>
     </div>`).join('');
 }
