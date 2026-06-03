@@ -401,6 +401,7 @@
         <button class="btn" onclick="go('community')">💞 我想被陪伴</button>
       </div>
       <button class="btn full" onclick="downloadApp()">⬇ 下载到本地 · 离线使用</button>
+      <button class="btn full" onclick="shareApp()" style="margin-top:10px">🤍 把心园送给需要平静的人</button>
     </div>
     <div class="card micro-card">
       <div class="section-title">🌱 今日微练习</div>
@@ -845,6 +846,16 @@ function stopMetta(){
   const btn=document.getElementById('mettaBtn');
   if(btn){btn.textContent='送出一份祝福 🤍';btn.classList.remove('on')}
   const s=document.getElementById('mettaStage');if(s){s.classList.remove('dim');s.textContent='愿我，平安喜乐'}
+}
+/* 把心园分享给需要的人——直击初心「帮全人类交流分享身心灵健康」 */
+function shareApp(){
+  const url='https://lovezhujunjie-sys.github.io/xinyuan-soul-garden/';
+  const text='送你一座「心园」🌿 一个可以呼吸、静心、记录心情、彼此祝福的小天地。愿它陪你平安喜乐。';
+  if(navigator.share){
+    navigator.share({title:'心园 · 身心灵',text,url}).then(()=>toast('愿这份温柔被传递 🤍')).catch(()=>{});
+  }else if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text+' '+url).then(()=>toast('已复制邀请语，去分享给TA吧 🤍')).catch(()=>toast('手动复制网址分享给TA吧 🤍'));
+  }else{toast('把这个页面分享给TA就好 🤍');}
 }
 function downloadApp(){
   fetch(location.href).then(r=>r.text()).then(html=>{
