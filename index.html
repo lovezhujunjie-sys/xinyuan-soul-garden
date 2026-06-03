@@ -383,6 +383,7 @@
         <button class="btn" onclick="newQuote()">换一句 ✨</button>
         <button class="btn" id="favBtn" onclick="toggleFav()">♡ 收藏</button>
         <button class="btn" onclick="shareQuote()">分享 🎁</button>
+        <button class="btn" id="readBtn" onclick="readQuote()" aria-label="把今天的心语读给我听">🔊 读给我听</button>
       </div>
       <div class="fav-link" id="favLink" onclick="toggleFavList()"></div>
       <div class="fav-list" id="favList" style="display:none"></div>
@@ -710,12 +711,28 @@ const QUOTES=[
   ["不和别人比较的时候，你才真正开始爱自己。","— 心园"]
 ];
 function newQuote(){
+  if(_reading){try{speechSynthesis.cancel()}catch(e){}_reading=false;const rb=document.getElementById('readBtn');if(rb)rb.textContent='🔊 读给我听';}
   const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
   document.getElementById('dailyQuote').textContent='“'+q[0]+'”';
   document.getElementById('dailyFrom').textContent=q[1];
   refreshFav();
 }
-/* 心语珍藏:把打动你的句子留下来,难过时再回来读一读——这是你给自己的光 */
+/* 读给我听:为看屏幕累了、视力不便、或只想闭眼倾听的人,把今天的心语轻轻念出来——全人类温柔可及 */
+let _reading=false;
+function readQuote(){
+  const btn=document.getElementById('readBtn');
+  if(!('speechSynthesis'in window)){toast('这台设备暂不支持朗读 🌿');return}
+  if(_reading){try{speechSynthesis.cancel()}catch(e){}_reading=false;if(btn)btn.textContent='🔊 读给我听';return}
+  const q=curQuote();if(!q.t)return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(q.t+(q.f?('。'+q.f.replace(/^—\s*/,'')):''));
+    u.lang='zh-CN';u.rate=.88;u.pitch=1;
+    u.onend=()=>{_reading=false;if(btn)btn.textContent='🔊 读给我听'};
+    u.onerror=()=>{_reading=false;if(btn)btn.textContent='🔊 读给我听'};
+    speechSynthesis.speak(u);_reading=true;if(btn)btn.textContent='⏹ 停止朗读';
+  }catch(e){_reading=false}
+}
 function curQuote(){return {t:(document.getElementById('dailyQuote').textContent||'').replace(/[“”"]/g,'').trim(),f:(document.getElementById('dailyFrom').textContent||'').trim()};}
 function getFavs(){return DB.get('favquotes',[])}
 function toggleFav(){
