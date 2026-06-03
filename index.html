@@ -128,6 +128,32 @@
     border-radius:999px;padding:9px 16px;cursor:pointer;font-family:inherit}
   .ci-toggle:hover{background:rgba(167,139,250,.22)}
   .ci-more{margin-top:11px;border-left:2px solid rgba(167,139,250,.45);padding-left:13px}
+  /* 养护动作示范小人:纯内联 SVG,零图片,离线可用 */
+  .care-art{float:left;width:62px;height:76px;margin:2px 13px 6px 0;
+    background:radial-gradient(circle at 50% 38%,rgba(125,211,192,.14),rgba(167,139,250,.06) 70%,transparent);
+    border-radius:14px}
+  .care-art svg{width:100%;height:100%;display:block;overflow:visible}
+  .care-art .f-stroke *{fill:none;stroke:var(--accent2);stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round}
+  .care-art .f-head{fill:rgba(125,211,192,.28)}
+  .care-art .f-ground{stroke:rgba(255,255,255,.18);stroke-width:2}
+  @media (prefers-reduced-motion:no-preference){
+    .care-art .figc{animation:artBreathe 5s ease-in-out infinite;transform-box:view-box;transform-origin:50px 116px}
+    .as-neck .f-head{animation:artNeck 3.6s ease-in-out infinite;transform-box:view-box;transform-origin:50px 30px}
+    .as-heel .figc{animation:artHeel 2.6s ease-in-out infinite;transform-box:view-box;transform-origin:50px 116px}
+    .as-press .f-armL,.as-press .f-armR{animation:artPress 4s ease-in-out infinite;transform-box:view-box;transform-origin:50px 46px}
+    .as-arch .f-spine{animation:artArch 4.4s ease-in-out infinite;transform-box:view-box;transform-origin:50px 56px}
+    .as-sway .f-upper{animation:artSway 4.4s ease-in-out infinite;transform-box:view-box;transform-origin:50px 70px}
+    .as-twist .f-upper{animation:artTwist 4.4s ease-in-out infinite;transform-box:view-box;transform-origin:50px 64px}
+    .as-punch .f-armL{animation:artPunch 2.4s ease-in-out infinite;transform-box:view-box;transform-origin:50px 46px}
+  }
+  @keyframes artBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+  @keyframes artNeck{0%,100%{transform:rotate(-13deg)}50%{transform:rotate(13deg)}}
+  @keyframes artHeel{0%,100%{transform:translateY(0)}45%{transform:translateY(-8px)}55%{transform:translateY(-8px)}}
+  @keyframes artPress{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+  @keyframes artArch{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+  @keyframes artSway{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+  @keyframes artTwist{0%,100%{transform:rotate(-11deg) skewX(0)}50%{transform:rotate(11deg)}}
+  @keyframes artPunch{0%,100%{transform:rotate(6deg)}50%{transform:rotate(-6deg)}}
   .ci-more[hidden]{display:none}
   .cm-row{font-size:13px;line-height:1.78;color:#e7e3fb;margin:9px 0}
   .cm-k{display:inline-block;font-size:11px;color:var(--accent2);background:rgba(125,211,192,.16);padding:1px 9px;border-radius:999px;margin-right:8px;vertical-align:1px}
@@ -837,14 +863,47 @@ function pickCare(k){careCat=k;renderCareTabs();renderCareBody()}
 function fmtSec(s){return s>=60?(s%60?Math.floor(s/60)+'分'+(s%60)+'秒':Math.floor(s/60)+'分钟'):s+'秒'}
 function currentSeason(){const m=new Date().getMonth()+1;return (m===12||m<=2)?'winter':m<=5?'spring':m<=8?'summer':'autumn'}
 function toggleMore(btn){const m=btn.nextElementSibling;const open=!m.hidden;m.hidden=open;btn.textContent=open?'展开详解 ▾':'收起详解 ▴'}
+/* ---------- 养护动作示范小人(纯内联 SVG 动画,零图片,离线) ---------- */
+const ART_STD={
+  s0:{head:[50,18],spine:'50,28 50,46 50,70',armL:'50,46 41,58 38,72',armR:'50,46 59,58 62,72',legs:['50,70 44,94 43,116','50,70 56,94 57,116'],ground:1,cls:'as-neck'},
+  s1:{head:[50,18],spine:'50,28 50,46 50,70',armL:'50,46 40,50 47,41',armR:'50,46 60,50 53,41',legs:['50,70 44,94 43,116','50,70 56,94 57,116'],ground:1,cls:''},
+  b0:{head:[50,19],spine:'50,28 50,46 50,70',armL:'50,46 45,30 49,15',armR:'50,46 55,30 51,15',legs:['50,70 44,94 43,116','50,70 56,94 57,116'],ground:1,cls:'as-press'},
+  b1:{head:[50,18],spine:'50,28 50,46 50,68',armL:'50,46 40,46 29,46',armR:'50,46 60,49 56,40',legs:['50,68 38,90 36,116','50,68 62,90 64,116'],ground:1,cls:''},
+  b2:{head:[50,19],spine:'50,28 50,46 50,70',armL:'50,46 47,30 49,15',armR:'50,46 58,58 60,72',legs:['50,70 44,94 43,116','50,70 56,94 57,116'],ground:1,cls:'as-press'},
+  b3:{head:[50,18],spine:'50,28 50,46 50,70',armL:'50,46 41,58 38,72',armR:'50,46 59,58 62,72',legs:['50,70 44,94 43,116','50,70 56,94 57,116'],ground:1,cls:'as-twist'},
+  b4:{head:[50,19],spine:'50,28 50,46 50,68',armL:'50,46 43,58 41,70',armR:'50,46 57,58 59,70',legs:['50,68 38,90 36,116','50,68 62,90 64,116'],ground:1,cls:'as-sway'},
+  b6:{head:[50,19],spine:'50,28 50,46 50,68',armL:'50,46 40,47 28,48',armR:'50,46 58,52 55,58',legs:['50,68 38,90 36,116','50,68 62,90 64,116'],ground:1,cls:'as-punch'},
+  b7:{head:[50,18],spine:'50,28 50,46 50,70',armL:'50,46 43,58 42,72',armR:'50,46 57,58 58,72',legs:['50,70 48,94 48,117','50,70 52,94 52,117'],ground:1,cls:'as-heel'},
+};
+const ART_RAW={
+  s2:{cls:'as-arch',svg:'<g class="figc f-stroke"><line class="f-ground" x1="18" y1="100" x2="86" y2="100"/><g class="f-legs"><polyline points="34,60 33,82 33,99"/><polyline points="66,60 68,82 68,99"/></g><circle class="f-head" cx="23" cy="64" r="7.5"/><polyline points="23,64 33,60"/><polyline class="f-spine" points="33,60 50,54 67,61"/></g>'},
+  s3:{cls:'',svg:'<g class="figc f-stroke"><line class="f-ground" x1="20" y1="96" x2="86" y2="96"/><polyline points="40,84 60,90 82,92"/><polyline class="f-spine" points="40,84 47,68 58,86"/><circle class="f-head" cx="61" cy="86" r="7.5"/><polyline points="47,70 60,88"/></g>'},
+  s4:{cls:'',svg:'<g class="figc f-stroke"><line class="f-ground" x1="18" y1="100" x2="86" y2="100"/><polyline points="68,82 76,99"/><polyline points="68,82 60,99"/><polyline class="f-spine" points="68,82 48,87 32,91"/><circle class="f-head" cx="26" cy="92" r="7.5"/><polyline points="40,89 22,94"/></g>'},
+  s5:{cls:'',svg:'<g class="figc f-stroke"><line class="f-ground" x1="18" y1="98" x2="64" y2="98"/><line class="f-ground" x1="64" y1="40" x2="64" y2="98"/><polyline points="26,96 50,96"/><circle class="f-head" cx="20" cy="96" r="7.5"/><polyline points="50,96 54,68 57,46"/><polyline points="50,96 49,86"/></g>'},
+  b5:{cls:'',svg:'<g class="figc f-stroke"><line class="f-ground" x1="20" y1="118" x2="80" y2="118"/><g class="f-legs"><polyline points="50,68 47,92 46,116"/><polyline points="50,68 53,92 54,116"/></g><polyline class="f-spine" points="50,68 50,52 44,74"/><circle class="f-head" cx="42" cy="81" r="7.5"/><polyline points="46,72 46,98"/></g>'},
+};
+function artFig(o){
+  const head=`<circle class="f-head" cx="${o.head[0]}" cy="${o.head[1]}" r="8"/>`;
+  const legs=(o.legs||[]).map((p,i)=>`<polyline class="${i?'f-legR':'f-legL'}" points="${p}"/>`).join('');
+  const upper=`<g class="f-upper"><polyline class="f-spine" points="${o.spine}"/>${head}<polyline class="f-armL" points="${o.armL}"/><polyline class="f-armR" points="${o.armR}"/></g>`;
+  const ground=o.ground?'<line class="f-ground" x1="20" y1="118" x2="80" y2="118"/>':'';
+  return `<svg class="fig-svg" viewBox="0 0 100 122" aria-hidden="true"><g class="figc f-stroke">${ground}<g class="f-legs">${legs}</g>${upper}</g></svg>`;
+}
+const ART_MAP={stretch:['s0','s1','s2','s3','s4','s5'],baduanjin:['b0','b1','b2','b3','b4','b5','b6','b7']};
+function careArtSVG(cat,i){
+  const key=ART_MAP[cat]&&ART_MAP[cat][i];if(!key)return '';
+  if(ART_STD[key])return `<div class="care-art ${ART_STD[key].cls}">${artFig(ART_STD[key])}</div>`;
+  if(ART_RAW[key])return `<div class="care-art ${ART_RAW[key].cls}"><svg class="fig-svg" viewBox="0 0 100 122" aria-hidden="true">${ART_RAW[key].svg}</svg></div>`;
+  return '';
+}
 function renderCareBody(){
   const c=CARE[careCat];
   let html=`<div class="care-intro">${c.intro}</div>`;
   const timed=c.items.filter(x=>x.sec).length;
   if((careCat==='stretch'||careCat==='baduanjin')&&timed>0)html+=`<button class="btn primary full" style="margin:0 0 6px" onclick="startCareSeq('${careCat}')">▶ 跟练全套（${timed} 个动作）</button>`;
   const se=currentSeason();
-  html+=c.items.map((it,i)=>{const now=careCat==='season'&&it.season===se;return `<div class="care-item"><div class="ci-no">${i+1}</div><div style="flex:1">
-    <div class="ci-t">${it.t}${now?' <span class="ci-badge">当季 🌿</span>':''}</div><div class="ci-d">${it.d}</div>
+  html+=c.items.map((it,i)=>{const now=careCat==='season'&&it.season===se;const art=(careCat==='stretch'||careCat==='baduanjin')?careArtSVG(careCat,i):'';return `<div class="care-item"><div class="ci-no">${i+1}</div><div style="flex:1">
+    ${art}<div class="ci-t">${it.t}${now?' <span class="ci-badge">当季 🌿</span>':''}</div><div class="ci-d">${it.d}</div>
     ${it.food?`<div class="ci-food">🍵 ${it.food}</div>`:''}
     ${it.more?`<button class="ci-toggle" onclick="toggleMore(this)">展开详解 ▾</button><div class="ci-more" hidden>${it.more.map(p=>`<div class="cm-row"><span class="cm-k">${p[0]}</span>${p[1]}</div>`).join('')}</div>`:''}
     ${it.sec?`<button class="btn" style="margin-top:10px" onclick="playOne('${careCat}',${i})">▶ 跟练 ${fmtSec(it.sec)}</button>`:''}${it.act||''}</div></div>`}).join('');
