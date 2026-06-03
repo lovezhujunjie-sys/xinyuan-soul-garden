@@ -355,6 +355,10 @@
     transition:opacity .9s ease,transform .9s ease}
   .metta-stage.dim{opacity:0;transform:translateY(8px)}
   .metta .btn.primary.on{background:linear-gradient(135deg,var(--accent3),#f0a85a)}
+  .metta-gift{margin-top:14px;padding:14px 16px;border-radius:14px;text-align:center;line-height:1.7;
+    font-size:15px;color:var(--accent3);background:rgba(244,180,120,.1);border:1px solid rgba(244,180,120,.22);
+    transition:opacity .6s ease}
+  .metta-gift.dim{opacity:0}
 </style>
 </head>
 <body>
@@ -409,7 +413,9 @@
       <div class="metta-stage" id="mettaStage" aria-live="polite">愿我，平安喜乐</div>
       <div class="row" style="justify-content:center">
         <button class="btn primary" id="mettaBtn" onclick="toggleMetta()">送出一份祝福 🤍</button>
+        <button class="btn" id="mettaGetBtn" onclick="receiveBless()">收下一份祝福 🌷</button>
       </div>
+      <div class="metta-gift" id="mettaGift" style="display:none" aria-live="polite"></div>
     </div>
   </section>
 
@@ -786,6 +792,25 @@ const METTA=[
   '愿全天下的人，都平安喜乐','愿世间一切生命，离苦得乐，自在安宁',
   '愿这份温柔，从你我心间，流向整个世界 🤍'
 ];
+/* 收下一份祝福:让爱也流回到你身上(交流分享·平安喜乐) */
+const RECEIVE_BLESS=[
+  '愿你被这个世界温柔以待，今天也是。',
+  '愿你心里的那块石头，慢慢轻下来。',
+  '愿你累的时候有处可歇，难的时候有人可依。',
+  '愿你眼里有光，身上有暖，脚下有路。',
+  '愿你不必假装坚强，也能被好好接住。',
+  '愿此刻的你，平安、健康、自在、喜乐。',
+  '愿你今晚睡个好觉，醒来心是轻盈的。',
+  '愿你记得：你已经做得很好了，真的。',
+  '愿你被爱包围，也愿你温柔地爱着自己。',
+  '愿远方有人正默默祝福着你——此刻，就有。',
+];
+function receiveBless(){
+  const g=document.getElementById('mettaGift');if(!g)return;
+  const pick=RECEIVE_BLESS[Math.floor(Math.random()*RECEIVE_BLESS.length)];
+  g.classList.add('dim');
+  setTimeout(()=>{g.textContent='🌷 '+pick;g.style.display='block';g.classList.remove('dim');},g.style.display==='none'?0:300);
+}
 let mettaTimer=null,mettaIdx=0;
 function showMetta(i){
   const s=document.getElementById('mettaStage');if(!s)return;
