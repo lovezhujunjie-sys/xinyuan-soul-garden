@@ -445,6 +445,14 @@
       </div>
       <button class="btn primary full" id="groundBtn" onclick="groundStep()">开始着陆</button>
     </div>
+    <div class="card ground-card">
+      <div class="section-title">🌙 身体扫描 · 睡前放松</div>
+      <div class="ground-intro">躺下或坐稳，跟着把注意力从脚到头慢慢走一遍，每到一处，就让那里松一点、再松一点。很适合睡前。</div>
+      <div class="ground-stage" id="scanStage" aria-live="polite">
+        <div class="gs-text">准备好了，就让身体慢慢沉进此刻。</div>
+      </div>
+      <button class="btn primary full" id="scanBtn" onclick="scanStep()">开始扫描</button>
+    </div>
   </section>
 
   <!-- ========== 情绪记录 ========== -->
@@ -1325,6 +1333,29 @@ const GROUND_STEPS=[
   {n:'2',t:'深吸一口气，找出 2 种你能<b>闻到</b>的气味。'},
   {n:'1',t:'留意嘴里 1 种<b>味道</b>，或喝一小口水，慢慢咽下。'},
 ];
+/* 睡前身体扫描:从脚到头,逐处觉察并放松,帮身体沉静入睡 */
+const SCAN_STEPS=[
+  '先做一次深呼吸。呼气时，让整个身体重重地沉向床面。',
+  '把注意力放到<b>双脚</b>。感受它们，然后让脚趾、脚掌完全松开。',
+  '来到<b>小腿和大腿</b>。让双腿变得沉沉的，交给床去承托。',
+  '感受<b>腹部和后腰</b>。随着呼吸起伏，让这里柔软下来。',
+  '来到<b>胸口</b>。每一次呼气，都让胸口松开一点。',
+  '注意<b>双手和手臂</b>。摊开手掌，让手指自然松开。',
+  '来到<b>肩膀和脖子</b>——我们扛了一整天。让肩膀往下垂，松开。',
+  '最后是<b>脸</b>。松开眉心、眼角、下巴，连舌头都放松。',
+  '现在，感受<b>整个身体</b>，松软、安稳、被好好托着。慢慢睡吧 🌙',
+];
+let scanIdx=-1;
+function scanStep(){
+  const stage=document.getElementById('scanStage'),btn=document.getElementById('scanBtn');
+  scanIdx++;
+  if(scanIdx>=SCAN_STEPS.length){
+    stage.innerHTML='<div class="gs-text">愿你被夜色温柔抱住，好好睡一觉 🤍</div>';
+    btn.textContent='再扫描一次';scanIdx=-1;return;
+  }
+  stage.innerHTML='<div class="gs-text">'+SCAN_STEPS[scanIdx]+'</div>';
+  btn.textContent=scanIdx<SCAN_STEPS.length-1?'下一处':'完成';
+}
 let groundIdx=-1;
 function groundStep(){
   const stage=document.getElementById('groundStage'),btn=document.getElementById('groundBtn');
