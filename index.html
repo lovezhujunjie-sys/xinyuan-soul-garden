@@ -857,6 +857,19 @@ function renderMoodGrid(){
 }
 function pickMood(m){moodSel=m;renderMoodGrid()}
 const HARD_MOODS=['😣','😔','😤'];
+/* 每一种心情都值得被温柔回应,让人觉得「被看见」 */
+const MOOD_REPLY={
+  '😣':'看见你的难受了，先深呼吸，你不是一个人 🤍',
+  '😔':'低落也没关系，允许自己慢一点 🌙',
+  '😐':'平平淡淡也是一种安稳，记录下来就好 🌿',
+  '🙂':'愿这份平和，陪你度过今天 🍃',
+  '😊':'真为你高兴，把这份好心情收好 🌸',
+  '😌':'这份安然很珍贵，慢慢享受它 🌾',
+  '🥰':'被爱包围的感觉真好，你值得 💗',
+  '😴':'累了就好好休息，照顾好自己 🌛',
+  '😤':'有情绪是正常的，它被允许存在 🤍',
+  '🤗':'温暖的你，也在温暖着别人 🌟',
+};
 function saveMood(){
   if(!moodSel){toast('先选一个心情吧');return}
   const picked=moodSel;
@@ -865,7 +878,7 @@ function saveMood(){
   log.unshift({emo:picked,note,ts:Date.now()});
   DB.set('mood',log);
   moodSel=null;document.getElementById('moodNote').value='';
-  logActivity('mood');renderMoodGrid();renderMoodLog();toast('已记录此刻 🌸');
+  logActivity('mood');renderMoodGrid();renderMoodLog();toast(MOOD_REPLY[picked]||'已记录此刻 🌸');
   maybeShowCrisis(picked,log);
 }
 /* 关怀提醒：识别到难熬的情绪时，温柔陪伴并给出求助通道 */
