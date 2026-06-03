@@ -1266,6 +1266,29 @@ function cycleTextScale(){
   applyTextScale();toast(SCALE_CAP[lv]+' 🔎');
 }
 applyTextScale();
+/* 温柔轮换的引导语:让空白的输入框也像一句温柔的邀请,帮没头绪的人轻轻起步 */
+const MOOD_PROMPTS=[
+  '想说点什么？写下当下的感受、念头都好',
+  '此刻，你的身体有什么感觉？',
+  '如果这份心情会说话，它想对你说…',
+  '今天，是什么轻轻触动了你？',
+  '允许自己如实地写，这里只有你和你自己',
+];
+const GRAT_PROMPTS=[
+  '一杯热茶的温度…',
+  '今天，有谁对你好？',
+  '窗外的天气，或一缕阳光…',
+  '一件让你嘴角上扬的小事…',
+  '今天，身体哪个部位很努力？谢谢它',
+  '一顿好好吃的饭…',
+  '此刻你拥有的、别人也许正盼望的…',
+];
+function applyGentlePrompts(){
+  const day=Math.floor(Date.now()/864e5);
+  const mn=document.getElementById('moodNote');if(mn)mn.placeholder=MOOD_PROMPTS[day%MOOD_PROMPTS.length];
+  const g1=document.getElementById('grat1');if(g1)g1.placeholder=GRAT_PROMPTS[day%GRAT_PROMPTS.length];
+}
+applyGentlePrompts();
 /* 首次到访的温柔欢迎 */
 function closeWelcome(){const w=document.getElementById('welcome');w.classList.remove('show');try{localStorage.setItem('xy_welcomed','1')}catch(e){}}
 function maybeWelcome(){try{if(!localStorage.getItem('xy_welcomed'))document.getElementById('welcome').classList.add('show')}catch(e){}}
