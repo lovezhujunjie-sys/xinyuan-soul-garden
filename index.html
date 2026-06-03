@@ -2,8 +2,14 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>心园 · 身心灵健康</title>
+<meta name="theme-color" content="#1a1f3a" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="心园" />
+<meta name="description" content="心园 · 身心灵健康——呼吸静心、情绪记录、感恩练习、传统养护，愿你平安喜乐。" />
 <style>
   :root{
     --bg1:#1a1f3a; --bg2:#2d2a52; --bg3:#3d3268;
@@ -316,6 +322,16 @@
       <div class="section-title">心情趋势 · 最近记录</div>
       <div id="trend"></div>
     </div>
+    <div class="card">
+      <div class="section-title">数据备份 · 守护你的记录 🛡️</div>
+      <div class="care-intro" style="margin:0 0 12px">你的心情、感恩、打卡都只存在「这台设备的这个浏览器」里。换手机、清缓存前，先<b>导出</b>一份留底；到了新设备再<b>导入</b>，记录就回来了。</div>
+      <div class="row">
+        <button class="btn primary" onclick="exportData()">⬇ 导出我的数据</button>
+        <button class="btn" onclick="document.getElementById('importFile').click()">⬆ 导入数据</button>
+        <input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="importData(this)" />
+      </div>
+      <div class="care-note" style="margin-top:14px">💡 想把心园当 App 用？在手机浏览器里打开后，点「分享 / 菜单」→「添加到主屏幕」，它就会像 App 一样全屏离线运行。</div>
+    </div>
   </section>
 
   <!-- ========== 社区分享 ========== -->
@@ -382,6 +398,36 @@ const DB = {
   set:(k,v)=>localStorage.setItem('xy_'+k,JSON.stringify(v))
 };
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+/* ---------- 数据备份:导出/导入(守护每个人的修行旅程) ---------- */
+const DB_KEYS=['mood','posts','gratitude','activity'];
+function exportData(){
+  try{
+    const data={};DB_KEYS.forEach(k=>{const v=localStorage.getItem('xy_'+k);if(v!=null)data[k]=JSON.parse(v)});
+    const payload={app:'心园 · 身心灵',ver:1,exportedAt:new Date().toISOString(),data};
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='心园-我的修行记录-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    toast('已导出，好好收着 🛡️');
+  }catch(e){toast('导出遇到点问题，再试一次')}
+}
+function importData(input){
+  const file=input.files&&input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const obj=JSON.parse(reader.result);
+      const data=obj&&obj.data?obj.data:obj;
+      if(!data||typeof data!=='object')throw 0;
+      if(!confirm('导入会用这份备份覆盖当前设备上的记录，确定吗？'))return;
+      DB_KEYS.forEach(k=>{if(k in data)localStorage.setItem('xy_'+k,JSON.stringify(data[k]))});
+      toast('已导入，正在为你恢复 🌿');
+      setTimeout(()=>location.reload(),900);
+    }catch(e){toast('这份文件读不出来，请选导出的备份文件')}
+    finally{input.value=''}
+  };
+  reader.readAsText(file);
+}
 function timeAgo(ts){const s=(Date.now()-ts)/1000;if(s<60)return '刚刚';if(s<3600)return Math.floor(s/60)+'分钟前';if(s<86400)return Math.floor(s/3600)+'小时前';return Math.floor(s/86400)+'天前'}
 
 /* ---------- navigation ---------- */
