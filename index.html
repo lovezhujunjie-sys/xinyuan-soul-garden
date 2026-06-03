@@ -462,6 +462,7 @@
     <div class="card">
       <div class="section-title">幸福账本</div>
       <div id="gratLog"></div>
+      <button class="btn full" id="shareGratBtn" onclick="shareGratToCommunity()" style="margin-top:12px">把今天的好事分享给大家 💞</button>
     </div>
   </section>
 
@@ -1421,6 +1422,20 @@ function saveGratitude(){
   const log=DB.get('gratitude',[]);log.unshift({items:v,ts:Date.now()});DB.set('gratitude',log);
   [1,2,3].forEach(i=>document.getElementById('grat'+i).value='');
   logActivity('grat',v.length);renderGratLog();toast('已收下今天的感恩 🌼');
+}
+/* 把今天的好事温柔地带到社区,让感恩从私密走向分享(交流分享) */
+function shareGratToCommunity(){
+  const log=DB.get('gratitude',[]);
+  const today=new Date();today.setHours(0,0,0,0);
+  const entry=log.find(e=>e.ts>=today.getTime())||log[0];
+  if(!entry||!entry.items||!entry.items.length){toast('先写下今天的好事，再分享给大家吧 🌼');return;}
+  go('community');
+  const ta=document.getElementById('postText');
+  ta.value='今天的小确幸：'+entry.items.join('、')+'。愿你也被生活温柔以待 🌷';
+  postTags=new Set(['#感恩']);renderTagRow();
+  ta.focus();
+  document.querySelector('#view-community .composer').scrollIntoView({behavior:'smooth',block:'start'});
+  toast('已为你写好，看看再发出去吧 💞');
 }
 function renderGratLog(){
   const log=DB.get('gratitude',[]),el=document.getElementById('gratLog');
