@@ -45,6 +45,11 @@
     @keyframes dailyBreathe{0%,100%{opacity:.45;transform:translate(-50%,-50%) scale(.9)}50%{opacity:.85;transform:translate(-50%,-50%) scale(1.12)}}
   }
 
+  /* 夜间柔光:深夜/清晨自动调暗,温柔护眼,陪你慢慢入睡 */
+  body.night .orb{opacity:.22!important;filter:blur(70px)}
+  body.night::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 30%,transparent 40%,rgba(10,8,24,.45));mix-blend-mode:multiply}
+  body.night .app{filter:brightness(.93)}
   .app{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:24px 18px 120px}
   header.top{text-align:center;padding:20px 0 14px;position:relative}
   header.top::before{content:'';position:absolute;left:50%;top:6px;width:200px;height:80px;transform:translateX(-50%);
@@ -778,8 +783,14 @@ function timeGreeting(){
   if(h>=18&&h<22)return '晚上好 🌙 今天辛苦了，慢慢放松下来';
   return '夜深了 🌌 愿你卸下今天，好好睡一觉';
 }
+/* 深夜(22点后)或清晨(6点前)自动开启夜间柔光,温柔护眼 */
+function applyNightMode(){
+  const h=new Date().getHours();
+  document.body.classList.toggle('night',h>=22||h<6);
+}
 function initDaily(){
   const d=new Date();
+  applyNightMode();
   const gr=document.getElementById('greeting');if(gr)gr.textContent=timeGreeting();
   document.getElementById('todayDate').textContent=`${d.getFullYear()} · ${d.getMonth()+1} · ${d.getDate()}`;
   // deterministic quote of the day
