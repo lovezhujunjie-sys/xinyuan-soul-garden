@@ -649,6 +649,7 @@ function go(v){
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   if(v!=='breath'){Ambient.stop();renderAmbPills();stopBreath();}
   if(v!=='home'&&typeof stopMetta==='function')stopMetta();
+  if(v!=='home'&&_reading){try{speechSynthesis.cancel()}catch(e){}_reading=false;const rb=document.getElementById('readBtn');if(rb)rb.textContent='🔊 读给我听';}
   if(v==='grow')renderGrow();
   window.scrollTo({top:0,behavior:'smooth'});
 }
