@@ -1136,14 +1136,16 @@ function renderTagRow(){
 function toggleTag(t){postTags.has(t)?postTags.delete(t):postTags.add(t);renderTagRow()}
 function seedPosts(){
   return [
-    {name:'静水',emo:'🌿',text:'今天试着在地铁上闭眼做了十次深呼吸，下车时整个人都松了下来。原来平静一直都在，只是我太忙忘了回来。',tags:['#正念','#呼吸'],likes:12,liked:false,bless:7,blessed:false,ts:Date.now()-3600e3*5},
-    {name:'晨光',emo:'☀️',text:'感恩今天：温热的早餐、朋友的一句问候、窗外的鸟鸣。幸福其实由很多微小的瞬间组成。',tags:['#感恩'],likes:24,liked:false,bless:15,blessed:false,ts:Date.now()-3600e3*26},
-    {name:'安然',emo:'🕊',text:'愿正在看这条的你，今天被温柔以待。如果累了，就允许自己休息，你已经做得很好了。',tags:['#祝福','#疗愈'],likes:58,liked:false,bless:39,blessed:false,ts:Date.now()-3600e3*50},
-    {name:'小满妈妈',emo:'🌷',text:'当妈妈后很久没好好喘口气。今晚把孩子哄睡，坐在阳台听了五分钟风声，眼泪掉下来又笑了。我也想被好好抱一抱。',tags:['#陪伴','#疗愈'],likes:41,liked:false,bless:33,blessed:false,ts:Date.now()-3600e3*8},
-    {name:'夜行人',emo:'🌙',text:'又是失眠的一夜。但我没有责怪自己，跟着做了几次安眠呼吸，身体慢慢沉下来了。睡不着也没关系，我在好好对待自己。',tags:['#助眠','#自我慈悲'],likes:29,liked:false,bless:21,blessed:false,ts:Date.now()-3600e3*14},
-    {name:'阿哲',emo:'🍃',text:'焦虑发作的时候，提醒自己：这种感觉会过去的，它来过很多次，每一次我都挺过来了。写在这里，也想告诉同样在熬的你。',tags:['#焦虑','#正念'],likes:47,liked:false,bless:36,blessed:false,ts:Date.now()-3600e3*33},
-    {name:'考研的小鹿',emo:'📖',text:'今天效率很低，本来想骂自己。后来想，累了就是累了，明天再来。允许自己不完美，好像反而轻松了一点。',tags:['#自我慈悲','#成长'],likes:35,liked:false,bless:24,blessed:false,ts:Date.now()-3600e3*42},
-    {name:'康复中',emo:'🌱',text:'生病这半年学会了慢下来。今天能自己走到楼下晒太阳，就已经很感恩了。身体在慢慢好起来，我也是。',tags:['#感恩','#疗愈'],likes:52,liked:false,bless:44,blessed:false,ts:Date.now()-3600e3*60},
+    {name:'静水',emo:'🌿',text:'今天试着在地铁上闭眼做了十次深呼吸，下车时整个人都松了下来。原来平静一直都在，只是我太忙忘了回来。',tags:['#正念','#呼吸'],likes:12,liked:false,bless:7,blessed:false,hug:4,hugged:false,ts:Date.now()-3600e3*5},
+    {name:'晨光',emo:'☀️',text:'感恩今天：温热的早餐、朋友的一句问候、窗外的鸟鸣。幸福其实由很多微小的瞬间组成。',tags:['#感恩'],likes:24,liked:false,bless:15,blessed:false,hug:6,hugged:false,ts:Date.now()-3600e3*26},
+    {name:'安然',emo:'🕊',text:'愿正在看这条的你，今天被温柔以待。如果累了，就允许自己休息，你已经做得很好了。',tags:['#祝福','#疗愈'],likes:58,liked:false,bless:39,blessed:false,hug:22,hugged:false,ts:Date.now()-3600e3*50},
+    {name:'小满妈妈',emo:'🌷',text:'当妈妈后很久没好好喘口气。今晚把孩子哄睡，坐在阳台听了五分钟风声，眼泪掉下来又笑了。我也想被好好抱一抱。',tags:['#陪伴','#疗愈'],likes:41,liked:false,bless:33,blessed:false,hug:28,hugged:false,ts:Date.now()-3600e3*8},
+    {name:'夜行人',emo:'🌙',text:'又是失眠的一夜。但我没有责怪自己，跟着做了几次安眠呼吸，身体慢慢沉下来了。睡不着也没关系，我在好好对待自己。',tags:['#助眠','#自我慈悲'],likes:29,liked:false,bless:21,blessed:false,hug:13,hugged:false,ts:Date.now()-3600e3*14},
+    {name:'阿哲',emo:'🍃',text:'焦虑发作的时候，提醒自己：这种感觉会过去的，它来过很多次，每一次我都挺过来了。写在这里，也想告诉同样在熬的你。',tags:['#焦虑','#正念'],likes:47,liked:false,bless:36,blessed:false,hug:19,hugged:false,ts:Date.now()-3600e3*33},
+    {name:'考研的小鹿',emo:'📖',text:'今天效率很低，本来想骂自己。后来想，累了就是累了，明天再来。允许自己不完美，好像反而轻松了一点。',tags:['#自我慈悲','#成长'],likes:35,liked:false,bless:24,blessed:false,hug:11,hugged:false,ts:Date.now()-3600e3*42},
+    {name:'康复中',emo:'🌱',text:'生病这半年学会了慢下来。今天能自己走到楼下晒太阳，就已经很感恩了。身体在慢慢好起来，我也是。',tags:['#感恩','#疗愈'],likes:52,liked:false,bless:44,blessed:false,hug:26,hugged:false,ts:Date.now()-3600e3*60},
+    {name:'离家的鱼',emo:'🌊',text:'一个人在外地过节，有点想家。给爸妈打了视频，听见他们说「我们都好」，心就暖了。愿每个漂泊的人，都有牵挂也被牵挂。',tags:['#陪伴','#感恩'],likes:38,liked:false,bless:30,blessed:false,hug:17,hugged:false,ts:Date.now()-3600e3*19},
+    {name:'老周',emo:'🍵',text:'退休后学着和自己相处。今早泡了壶茶，慢慢看院子里的花。年轻时总往前赶，老了才懂，慢下来也是一种圆满。',tags:['#四时养生','#成长'],likes:44,liked:false,bless:31,blessed:false,hug:9,hugged:false,ts:Date.now()-3600e3*70},
   ];
 }
 const BLESS_WORDS=['你的祝福已送达，愿爱流动 🙏','一份善意，正温柔地传出去 🤍','愿你与TA，都被这世界善待 🌿','谢谢你，让这里多了一分温暖 💫'];
