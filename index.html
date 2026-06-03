@@ -1148,7 +1148,7 @@ function seedPosts(){
     {name:'老周',emo:'🍵',text:'退休后学着和自己相处。今早泡了壶茶，慢慢看院子里的花。年轻时总往前赶，老了才懂，慢下来也是一种圆满。',tags:['#四时养生','#成长'],likes:44,liked:false,bless:31,blessed:false,hug:9,hugged:false,ts:Date.now()-3600e3*70},
   ];
 }
-const BLESS_WORDS=['你的祝福已送达，愿爱流动 🙏','一份善意，正温柔地传出去 🤍','愿你与TA，都被这世界善待 🌿','谢谢你，让这里多了一分温暖 💫'];
+const BLESS_WORDS=['你的祝福已送达，愿爱流动 🙏','一份善意，正温柔地传出去 🤍','愿你与TA，都被这世界善待 🌿','谢谢你，让这里多了一分温暖 💫','你送出的光，也会照回到你身上 ✨','善意像涟漪，正一圈圈荡开 🌊'];
 function addPost(){
   const text=document.getElementById('postText').value.trim();
   if(!text){toast('写点什么再发布吧');return}
@@ -1169,7 +1169,7 @@ function blessPost(i){
   DB.set('posts',feed);renderFeed();
   if(p.blessed)toast(BLESS_WORDS[Math.floor(Math.random()*BLESS_WORDS.length)]);
 }
-const HUG_WORDS=['抱抱你，你不是一个人 🫂','轻轻抱住你，会好起来的 🤍','把这个拥抱传给你，慢慢来 🌷','隔着屏幕，也想给你一个温暖的拥抱 💗'];
+const HUG_WORDS=['抱抱你，你不是一个人 🫂','轻轻抱住你，会好起来的 🤍','把这个拥抱传给你，慢慢来 🌷','隔着屏幕，也想给你一个温暖的拥抱 💗','给你一个长长的拥抱，辛苦了 🫂','别怕，有人在这里陪着你 🌿'];
 function hugPost(i){
   const feed=DB.get('posts',null)||seedPosts();
   const p=feed[i];p.hugged=!p.hugged;p.hug=(p.hug||0)+(p.hugged?1:-1);
