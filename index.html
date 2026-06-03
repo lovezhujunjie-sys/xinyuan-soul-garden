@@ -226,6 +226,21 @@
     color:#1a1f3a;font-weight:600;padding:10px 22px;border-radius:999px;font-size:14px;opacity:0;transition:.3s;z-index:20;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+  /* 首次欢迎 */
+  .welcome{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:22px;
+    background:rgba(16,18,38,.72);backdrop-filter:blur(10px);overflow:auto}
+  .welcome.show{display:flex;animation:fade .5s ease}
+  .welcome-card{max-width:380px;width:100%;max-height:94vh;overflow:auto;text-align:center;border-radius:24px;padding:30px 24px 24px;
+    background:linear-gradient(160deg,rgba(167,139,250,.22),rgba(125,211,192,.16)),rgba(28,30,56,.96);
+    border:1px solid var(--card-br);box-shadow:0 18px 60px rgba(0,0,0,.4)}
+  .welcome-logo{font-size:30px;letter-spacing:8px;font-weight:600}
+  .welcome-sub{margin-top:8px;color:var(--accent2);font-size:13px;letter-spacing:2px}
+  .welcome-p{margin:18px 2px 16px;font-size:14px;line-height:1.8;color:var(--text)}
+  .welcome-feat{text-align:left;display:flex;flex-direction:column;gap:11px;margin:4px 0 16px}
+  .welcome-feat div{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--text)}
+  .welcome-feat span{font-size:20px;width:26px;text-align:center;flex:0 0 26px}
+  .welcome-tip{font-size:12px;color:var(--muted);line-height:1.7;margin:0 0 18px}
+
   /* a11y: visible keyboard focus */
   :focus-visible{outline:2px solid var(--accent2);outline-offset:2px;border-radius:6px}
   /* a11y: honor reduced-motion preference */
@@ -432,6 +447,23 @@
       <span class="pl-tog on" id="plVoice" onclick="plToggle('voice')">🗣 语音引导</span>
     </div>
     <button class="btn full" onclick="closePlayer()" style="margin-top:14px">结束</button>
+  </div>
+</div>
+
+<!-- 首次到访 · 温柔欢迎 -->
+<div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-label="欢迎来到心园">
+  <div class="welcome-card">
+    <div class="welcome-logo">心 园</div>
+    <div class="welcome-sub">愿你在这里 · 平安 · 喜乐 · 自在</div>
+    <p class="welcome-p">心园是一处为你而留的安静角落。我们相信，每个人都值得被温柔以待——也愿这份温柔，能在人与人之间流动。</p>
+    <div class="welcome-feat">
+      <div><span>🌬</span>呼吸静心，给心一个落脚的地方</div>
+      <div><span>📿</span>记录心情与感恩，听见自己</div>
+      <div><span>🌿</span>传统养护，温柔安顿身体</div>
+      <div><span>💞</span>在社区里，彼此祝福、共鸣</div>
+    </div>
+    <p class="welcome-tip">你的所有记录都只存在这台设备上，私密、安心。<br>它完全离线可用，随时随地陪着你。</p>
+    <button class="btn primary full" onclick="closeWelcome()">进来坐坐 🤍</button>
   </div>
 </div>
 
@@ -1097,8 +1129,16 @@ function renderGrow(){
 
 /* ---------- init ---------- */
 initDaily();renderBreathModes();renderAmbPills();renderMoodGrid();renderMoodLog();renderGratLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
-/* Esc 关闭跟练浮层 */
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('player').classList.contains('show'))closePlayer()});
+/* 首次到访的温柔欢迎 */
+function closeWelcome(){const w=document.getElementById('welcome');w.classList.remove('show');try{localStorage.setItem('xy_welcomed','1')}catch(e){}}
+function maybeWelcome(){try{if(!localStorage.getItem('xy_welcomed'))document.getElementById('welcome').classList.add('show')}catch(e){}}
+maybeWelcome();
+/* Esc 关闭浮层 */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(document.getElementById('welcome').classList.contains('show')){closeWelcome();return}
+  if(document.getElementById('player').classList.contains('show'))closePlayer();
+});
 </script>
 </body>
 </html>
