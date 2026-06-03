@@ -194,6 +194,22 @@
   .trend .ln{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 2px 6px var(--glow))}
   .trend .ar{fill:url(#trendGrad);opacity:.5}
   .trend .dot{fill:var(--accent2)}
+  /* 本周温柔回顾 */
+  .weekly{background:linear-gradient(135deg,rgba(167,139,250,.16),rgba(125,211,192,.12))}
+  .weekly .wk-lead{font-size:14px;line-height:1.85;color:var(--text);margin:0 0 14px}
+  .weekly .wk-lead b{color:var(--accent2);font-weight:600}
+  .weekly .wk-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+  .weekly .wk-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;letter-spacing:.5px;
+    background:rgba(255,255,255,.06);border:1px solid var(--card-br);border-radius:999px;padding:7px 13px;color:var(--text)}
+  .weekly .wk-chip b{font-variant-numeric:tabular-nums;color:var(--accent2)}
+  .weekly .wk-bless{font-size:13px;line-height:1.8;color:var(--muted);border-top:1px solid var(--card-br);padding-top:12px;margin-top:2px}
+  /* 记录条目的轻轻删除 */
+  .entry-del{margin-left:auto;align-self:flex-start;background:none;border:none;cursor:pointer;color:var(--muted);
+    font-size:13px;padding:4px 7px;border-radius:9px;transition:.2s;opacity:.55}
+  .entry-del:hover{color:#ff8fa3;background:rgba(255,255,255,.08);opacity:1}
+  .mood-entry{position:relative}
+  .grat-entry{position:relative}
+  .grat-entry .entry-del{position:absolute;right:0;top:10px}
 
   /* 跟练计时器 overlay */
   .player{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:24px;overflow:auto;
@@ -364,6 +380,10 @@
       <div class="grow-flame">🔥</div>
       <div class="grow-num" id="streakNum">0</div>
       <div class="grow-cap" id="streakCap">连续修行 0 天</div>
+    </div>
+    <div class="card weekly" id="weeklyCard">
+      <div class="section-title">本周回顾 · 只看见，不评判</div>
+      <div id="weeklyBody"></div>
     </div>
     <div class="card">
       <div class="section-title">点滴累积</div>
@@ -721,7 +741,13 @@ function renderMoodLog(){
       <div class="emo">${e.emo}</div>
       <div class="body"><small>${new Date(e.ts).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}</small>
       <div>${e.note?escapeHtml(e.note):'<span style="color:var(--muted)">（仅记录心情）</span>'}</div></div>
+      <button class="entry-del" title="删除这条记录" aria-label="删除这条心情记录" onclick="delMood(${e.ts})">×</button>
     </div>`).join('');
+}
+function delMood(ts){
+  if(!confirm('轻轻删去这条心情记录吗？'))return;
+  const log=DB.get('mood',[]).filter(e=>e.ts!==ts);DB.set('mood',log);
+  renderMoodLog();renderGrow();toast('已删去 🌙');
 }
 
 /* ---------- community ---------- */
@@ -1097,7 +1123,12 @@ function saveGratitude(){
 function renderGratLog(){
   const log=DB.get('gratitude',[]),el=document.getElementById('gratLog');
   if(!log.length){el.innerHTML='<div class="empty">还没有记录。今晚开始，写下三件好事吧。</div>';return}
-  el.innerHTML=log.slice(0,30).map(e=>`<div class="grat-entry"><small>${new Date(e.ts).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'})}</small><ul>${e.items.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></div>`).join('');
+  el.innerHTML=log.slice(0,30).map(e=>`<div class="grat-entry"><small>${new Date(e.ts).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'})}</small><button class="entry-del" title="删除这条感恩" aria-label="删除这条感恩记录" onclick="delGrat(${e.ts})">×</button><ul>${e.items.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></div>`).join('');
+}
+function delGrat(ts){
+  if(!confirm('轻轻删去这条感恩记录吗？'))return;
+  const log=DB.get('gratitude',[]).filter(e=>e.ts!==ts);DB.set('gratitude',log);
+  renderGratLog();renderGrow();toast('已删去 🌙');
 }
 
 /* ---------- 成长:连续天数 + 热力图 + 心情趋势 ---------- */
@@ -1132,7 +1163,44 @@ function renderGrow(){
   document.getElementById('stMood').textContent=DB.get('mood',[]).length;
   document.getElementById('stCare').textContent=activityTotal('care');
   document.getElementById('stGrat').textContent=DB.get('gratitude',[]).reduce((s,e)=>s+e.items.length,0);
-  renderHeat();renderTrend();
+  renderHeat();renderTrend();renderWeekly();
+}
+/* 本周温柔回顾:只看见、不评判、不打分。把这一周的修行轻轻说给自己听。 */
+const MOOD_WARM={'😣':'有些艰难','😔':'有些低落','😐':'平平淡淡','🙂':'还算平和','😊':'挺开心','😌':'很安然','🥰':'被爱包围','😴':'有点疲惫','😤':'有些憋闷','🤗':'温暖满满'};
+function renderWeekly(){
+  const el=document.getElementById('weeklyBody');if(!el)return;
+  const a=DB.get('activity',{}),now=Date.now(),weekAgo=now-7*24*3600e3;
+  let activeDays=0,breath=0,care=0,metta=0,share=0;
+  const d=new Date();for(let i=0;i<7;i++){const rec=a[dayKey(d)];if(rec){activeDays++;breath+=rec.breath||0;care+=rec.care||0;metta+=rec.metta||0;share+=rec.share||0;}d.setDate(d.getDate()-1);}
+  const moods=DB.get('mood',[]).filter(e=>e.ts>=weekAgo);
+  const grats=DB.get('gratitude',[]).filter(e=>e.ts>=weekAgo);
+  const gratCount=grats.reduce((s,e)=>s+e.items.length,0);
+  // 没有任何记录:温柔的起点
+  if(!activeDays&&!moods.length&&!grats.length){
+    el.innerHTML='<p class="wk-lead">这一周还没有留下记录，没关系的 🌱<br>不必追赶，也不必证明什么。<b>此刻翻开这里，就已经是温柔待己的开始。</b></p>';
+    return;
+  }
+  // 最常出现的心情
+  let topMood='',topWarm='';
+  if(moods.length){const cnt={};moods.forEach(m=>cnt[m.emo]=(cnt[m.emo]||0)+1);topMood=Object.keys(cnt).sort((x,y)=>cnt[y]-cnt[x])[0];topWarm=MOOD_WARM[topMood]||'';}
+  const chips=[];
+  if(activeDays)chips.push(`<span class="wk-chip">🌿 来过 <b>${activeDays}</b> 天</span>`);
+  if(breath)chips.push(`<span class="wk-chip">🌬 呼吸 <b>${breath}</b> 轮</span>`);
+  if(moods.length)chips.push(`<span class="wk-chip">📿 倾听心情 <b>${moods.length}</b> 次</span>`);
+  if(care)chips.push(`<span class="wk-chip">🧘 跟练 <b>${care}</b> 次</span>`);
+  if(gratCount)chips.push(`<span class="wk-chip">🌼 感恩 <b>${gratCount}</b> 件</span>`);
+  if(metta)chips.push(`<span class="wk-chip">🤍 送出祝福 <b>${metta}</b> 轮</span>`);
+  if(share)chips.push(`<span class="wk-chip">💫 分享 <b>${share}</b> 次</span>`);
+  // 温柔旁白
+  let lead='';
+  if(activeDays>=5)lead=`这一周，你<b>几乎天天</b>都回到了自己身边——这份持续的温柔，很珍贵。`;
+  else if(activeDays>=2)lead=`这一周，你给了自己<b>${activeDays}</b> 段独处的时光。能停下来照顾自己，已经很好。`;
+  else lead=`这一周你来过 <b>${activeDays||1}</b> 天。哪怕只是一次，也是你对自己的一次温柔。`;
+  if(topWarm)lead+=`<br>你心里更多是「<b>${topMood} ${topWarm}</b>」的感觉——无论哪一种，都被允许、都值得被看见。`;
+  if(gratCount)lead+=`<br>你还记下了 <b>${gratCount}</b> 件值得感恩的小事，它们都是生活悄悄给你的光。`;
+  const blesses=['愿下一周，你依然这样温柔地待自己 🤍','你不需要更好，你已经在路上了 🌙','看见自己，就是最大的成长 🌿','慢慢来，比较快。心园会一直陪着你 💫'];
+  const bless=blesses[(activeDays+moods.length)%blesses.length];
+  el.innerHTML=`<p class="wk-lead">${lead}</p>${chips.length?`<div class="wk-chips">${chips.join('')}</div>`:''}<div class="wk-bless">${bless}</div>`;
 }
 
 /* ---------- init ---------- */
