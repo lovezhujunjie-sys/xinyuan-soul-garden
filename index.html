@@ -837,7 +837,9 @@ function toggleMetta(){
     if(mettaIdx>=METTA.length){
       clearInterval(mettaTimer);mettaTimer=null;
       logActivity('metta');
-      btn.textContent='再送一次 🤍';btn.classList.remove('on');return;
+      btn.textContent='再送一次 🤍';btn.classList.remove('on');
+      receiveBless();/* 送出之后,也让自己被祝福接住 */
+      return;
     }
     showMetta(mettaIdx);
   },5600);
