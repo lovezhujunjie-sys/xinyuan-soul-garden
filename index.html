@@ -95,7 +95,11 @@
   .breath-circle .lbl{font-size:18px;letter-spacing:3px}
   .breath-circle.run.inhale{transform:scale(1.35)}
   .breath-circle.run.exhale{transform:scale(.85)}
-  .breath-meta{color:var(--muted);font-size:13px;margin-top:6px;min-height:18px}
+  @media (prefers-reduced-motion:no-preference){
+    .breath-circle:not(.run){animation:breatheIdle 7s ease-in-out infinite}
+    @keyframes breatheIdle{0%,100%{transform:scale(.94);box-shadow:0 0 40px var(--glow)}50%{transform:scale(1.06);box-shadow:0 0 72px var(--glow)}}
+  }
+  .breath-meta{color:var(--muted);font-size:13px;margin-top:6px;min-height:18px;transition:.3s}
   .pill-row{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
   .pill{padding:11px 18px;border-radius:999px;font-size:13px;cursor:pointer;border:1px solid var(--card-br);background:rgba(255,255,255,.06);transition:.2s}
   .pill.on{background:linear-gradient(135deg,var(--accent),#7c5cff);border-color:transparent}
@@ -716,9 +720,17 @@ function stopBreath(){
   if(breathCount>0)logActivity('breath',breathCount);
   const c=document.getElementById('breathCircle');
   c.classList.remove('run','inhale','exhale');c.style.transitionDuration='4s';
-  document.getElementById('breathLbl').textContent='很好';
+  document.getElementById('breathLbl').textContent=breathCount>0?'很好':'准备';
   document.getElementById('breathBtn').textContent='开始';
-  document.getElementById('breathMeta').textContent=breathCount>0?`这次你完成了 ${breathCount} 轮呼吸 🌿`:'选择节奏，跟随圆圈一呼一吸';
+  document.getElementById('breathMeta').textContent=breathCount>0?breathBless(breathCount):'选择节奏，跟随圆圈一呼一吸';
+}
+/* 呼吸收束:按完成轮数给一句温柔的话，让平静留在心里 */
+function breathBless(n){
+  let say;
+  if(n<=2)say='哪怕只是几次深呼吸，你也把自己温柔地接住了 🌿';
+  else if(n<=5)say='这几轮里，你回到了当下。此刻的平静，是你给自己的礼物 🌸';
+  else say='你给了自己一段安静的时光，愿这份平静一直留在你心里 🤍';
+  return `完成 ${n} 轮 · ${say}`;
 }
 
 /* ---------- mood ---------- */
