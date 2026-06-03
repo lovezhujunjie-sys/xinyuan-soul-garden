@@ -714,18 +714,19 @@ function shareQuote(){
   x.fillStyle='#7dd3c0';x.fillText('心 园 · 愿你平安喜乐',W/2,H-90);
   x.font='400 26px -apple-system,"PingFang SC",sans-serif';x.fillStyle='rgba(201,196,230,.7)';
   x.fillText('愿这份温柔，从你心间流向世界 🤍',W/2,H-50);
-  // 导出 → 优先系统分享,否则下载
+  // 导出 → 优先系统分享,否则下载;任何设备都能拿到图(全人类温柔可及)
   cv.toBlob(blob=>{
     if(!blob){toast('生成失败，再试一次吧');return}
-    const file=new File([blob],'心园-今日心语.png',{type:'image/png'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){
-      navigator.share({files:[file],title:'心园 · 今日心语',text:quote+(from?(' —'+from):'')}).then(()=>toast('愿这份温柔被传递 🤍')).catch(()=>{});
-    }else{
-      const url=URL.createObjectURL(blob),a=document.createElement('a');
+    const dl=()=>{const url=URL.createObjectURL(blob),a=document.createElement('a');
       a.href=url;a.download='心园-今日心语.png';document.body.appendChild(a);a.click();a.remove();
       setTimeout(()=>URL.revokeObjectURL(url),1000);
-      toast('已存成图片，去分享给在意的人吧 🎁');
-    }
+      toast('已存成图片，去分享给在意的人吧 🎁');};
+    const file=new File([blob],'心园-今日心语.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:'心园 · 今日心语',text:quote+(from?(' —'+from):'')})
+        .then(()=>toast('愿这份温柔被传递 🤍'))
+        .catch(err=>{if(err&&err.name==='AbortError')return; dl();}); // 用户取消则不打扰,真出错就回退下载
+    }else dl();
   },'image/png');
 }
 /* ---------- 慈心祝福(metta):由己及人,直至众生,愿全人类平安喜乐 ---------- */
