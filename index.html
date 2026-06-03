@@ -1151,12 +1151,19 @@ function renderFeed(){
       ${(p.tags&&p.tags.length)?'<div>'+p.tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')+'</div>':''}
       <div class="text" style="margin-top:8px">${escapeHtml(p.text)}</div>
       <div class="acts">
-        <span class="${p.liked?'liked':''}" onclick="likePost(${i})">${p.liked?'❤️':'🤍'} 共鸣 ${p.likes}</span>
-        <span class="${p.blessed?'blessed':''}" onclick="blessPost(${i})">🙏 祝福 ${p.bless||0}</span>
-        <span class="${p.hugged?'hugged':''}" onclick="hugPost(${i})">🫂 抱抱 ${p.hug||0}</span>
+        <span role="button" tabindex="0" aria-pressed="${!!p.liked}" aria-label="共鸣，当前 ${p.likes}" class="${p.liked?'liked':''}" onclick="likePost(${i})">${p.liked?'❤️':'🤍'} 共鸣 ${p.likes}</span>
+        <span role="button" tabindex="0" aria-pressed="${!!p.blessed}" aria-label="祝福，当前 ${p.bless||0}" class="${p.blessed?'blessed':''}" onclick="blessPost(${i})">🙏 祝福 ${p.bless||0}</span>
+        <span role="button" tabindex="0" aria-pressed="${!!p.hugged}" aria-label="抱抱，当前 ${p.hug||0}" class="${p.hugged?'hugged':''}" onclick="hugPost(${i})">🫂 抱抱 ${p.hug||0}</span>
       </div>
     </div>`).join('');
 }
+/* 让社区的共鸣/祝福/抱抱可用键盘触发(role=button 的 span),全人类温柔可及 */
+(function bindActsKeys(){
+  const feed=document.getElementById('feed');if(!feed)return;
+  feed.addEventListener('keydown',e=>{
+    if((e.key==='Enter'||e.key===' ')&&e.target.matches('.acts span[role="button"]')){e.preventDefault();e.target.click();}
+  });
+})();
 
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
