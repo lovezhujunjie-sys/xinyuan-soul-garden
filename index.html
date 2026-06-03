@@ -473,6 +473,7 @@
   <section class="view" id="view-community">
     <div class="card composer">
       <div class="section-title">分享你的身心灵感悟</div>
+      <div class="care-intro" style="margin:0 0 10px">这里没有点赞攀比，只有彼此祝福与共鸣。你的每一句温柔，都可能照亮另一个人 🤍</div>
       <textarea id="postText" placeholder="一句感悟、一段经历、一份祝福… 让爱与平安流动"></textarea>
       <div class="row" id="tagRow"></div>
       <button class="btn primary full" onclick="addPost()">发布 💫</button>
@@ -1412,10 +1413,18 @@ const GRAT_PROMPTS=[
   '一顿好好吃的饭…',
   '此刻你拥有的、别人也许正盼望的…',
 ];
+const POST_PROMPTS=[
+  '一句感悟、一段经历、一份祝福… 让爱与平安流动',
+  '今天，有什么想温柔地对世界说？',
+  '把你此刻的平静，分享给也许正需要的人',
+  '写一句祝福，送给每一个看到的陌生人',
+  '最近有什么让你心安的小事？说给大家听',
+];
 function applyGentlePrompts(){
   const day=Math.floor(Date.now()/864e5);
   const mn=document.getElementById('moodNote');if(mn)mn.placeholder=MOOD_PROMPTS[day%MOOD_PROMPTS.length];
   const g1=document.getElementById('grat1');if(g1)g1.placeholder=GRAT_PROMPTS[day%GRAT_PROMPTS.length];
+  const pt=document.getElementById('postText');if(pt)pt.placeholder=POST_PROMPTS[day%POST_PROMPTS.length];
 }
 applyGentlePrompts();
 /* 首次到访的温柔欢迎 */
