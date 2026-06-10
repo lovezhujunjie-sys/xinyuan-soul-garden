@@ -126,6 +126,13 @@
     padding:16px;border-radius:16px;background:rgba(125,211,192,.08);border:1px solid rgba(125,211,192,.16);margin-bottom:12px}
   .ground-stage .gs-num{font-size:34px;font-weight:700;color:var(--accent2);display:block;margin-bottom:6px;letter-spacing:1px}
   .ground-stage .gs-text{font-size:15px;line-height:1.7;color:var(--text)}
+  .medit-list{display:flex;flex-direction:column;gap:10px}
+  .medit-item{display:flex;align-items:center;gap:13px;text-align:left;padding:13px 16px;width:100%}
+  .medit-item .mi-emo{font-size:24px;line-height:1;flex:none}
+  .medit-item .mi-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .medit-item .mi-txt b{font-size:15px;color:var(--text);font-weight:600}
+  .medit-item .mi-txt small{font-size:12.5px;color:var(--muted)}
+  .medit-item .mi-go{margin-left:auto;color:var(--accent2);font-size:18px;flex:none}
   .micro-text{font-size:15px;line-height:1.8;color:var(--text);margin-bottom:12px}
   .micro-card .btn.done{background:rgba(125,211,192,.18);border-color:rgba(125,211,192,.4);color:var(--accent2)}
   .pill-row{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;flex-wrap:wrap}
@@ -439,6 +446,11 @@
           <span>🔊</span>
         </div>
       </div>
+    </div>
+    <div class="card medit-card">
+      <div class="section-title">🧘 引导冥想 · 跟着声音静一静</div>
+      <div class="ground-intro">不用自己计时、也不用一下下地点。选一段，跟着温柔的引导语和钟声，让心慢慢安顿下来。想要的话，可以先在上方打开「冥想音景」一起听。</div>
+      <div class="medit-list" id="meditList"></div>
     </div>
     <div class="card ground-card">
       <div class="section-title">🌍 着陆练习 · 5-4-3-2-1</div>
@@ -1443,23 +1455,26 @@ function groundStep(){
 
 /* ---------- 跟练计时器(倒计时环 + 提示音 + 语音,纯前端零依赖) ---------- */
 const RING_C=326.7;   // 2π·52
-const PL={list:[],idx:0,totalMs:0,leftMs:0,last:0,raf:0,adv:0,paused:false,sound:true,voice:true,ac:null};
+const PL={list:[],idx:0,totalMs:0,leftMs:0,last:0,raf:0,adv:0,paused:false,sound:true,voice:true,ac:null,opts:null};
+/* 跟练/冥想播放器的可定制文案,默认沿用「跟练」基调;冥想会传入自己的一套 */
+const PL_DEFAULT={unit:'个',tail:'跟随呼吸',single:'跟随呼吸，别勉强',aria:'跟练',log:'care',done:'很好 🌿',doneSub:'完成了，感受身体的放松',doneSay:'很好，完成了，感受身体的放松'};
 function plAudio(){try{if(!PL.ac)PL.ac=new (window.AudioContext||window.webkitAudioContext)();if(PL.ac.state==='suspended')PL.ac.resume();}catch(e){}return PL.ac}
 function chime(freq,dur){if(!PL.sound)return;const ac=plAudio();if(!ac)return;try{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=freq;o.connect(g);g.connect(ac.destination);const t=ac.currentTime;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.16,t+.04);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.start(t);o.stop(t+dur+.02)}catch(e){}}
 function speak(text){if(!PL.voice||!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='zh-CN';u.rate=.92;u.pitch=1;speechSynthesis.speak(u)}catch(e){}}
 function setRing(frac){document.getElementById('plRing').style.strokeDashoffset=RING_C*(1-Math.max(0,Math.min(1,frac)))}
 function playOne(cat,i){openPlayer([CARE[cat].items[i]])}
 function startCareSeq(cat){openPlayer(CARE[cat].items.filter(x=>x.sec))}
-function openPlayer(list){
+function openPlayer(list,opts){
   if(!list.length)return;PL.list=list;PL.idx=0;PL.paused=false;
-  document.getElementById('player').classList.add('show');
+  PL.opts=Object.assign({},PL_DEFAULT,opts||{});
+  const pl=document.getElementById('player');pl.classList.add('show');pl.setAttribute('aria-label',PL.opts.aria);
   plAudio();runStep();
 }
 function runStep(){
   const it=PL.list[PL.idx];if(!it){closePlayer(true);return}
   PL.totalMs=it.sec*1000;PL.leftMs=PL.totalMs;PL.last=performance.now();PL.paused=false;
   document.getElementById('plTitle').textContent=it.t;
-  document.getElementById('plSub').textContent=PL.list.length>1?`第 ${PL.idx+1} / ${PL.list.length} 个 · 跟随呼吸`:'跟随呼吸，别勉强';
+  document.getElementById('plSub').textContent=PL.list.length>1?`第 ${PL.idx+1} / ${PL.list.length} ${PL.opts.unit} · ${PL.opts.tail}`:PL.opts.single;
   document.getElementById('plPause').textContent='暂停';
   document.getElementById('plNext').style.visibility=PL.list.length>1?'visible':'hidden';
   setRing(1);document.getElementById('plNum').textContent=it.sec;
@@ -1478,12 +1493,74 @@ function plFrame(now){
 function plAdvance(){
   cancelAnimationFrame(PL.raf);clearTimeout(PL.adv);
   if(PL.idx+1<PL.list.length){PL.idx++;PL.adv=setTimeout(()=>{if(document.getElementById('player').classList.contains('show'))runStep()},800)}
-  else{logActivity('care');document.getElementById('plTitle').textContent='很好 🌿';document.getElementById('plSub').textContent='完成了，感受身体的放松';speak('很好，完成了，感受身体的放松');PL.adv=setTimeout(()=>closePlayer(false),1500)}
+  else{const o=PL.opts||PL_DEFAULT;logActivity(o.log);chime(528,.9);document.getElementById('plTitle').textContent=o.done;document.getElementById('plSub').textContent=o.doneSub;document.getElementById('plNext').style.visibility='hidden';speak(o.doneSay);PL.adv=setTimeout(()=>closePlayer(false),2000)}
 }
 function plTogglePause(){PL.paused=!PL.paused;PL.last=performance.now();document.getElementById('plPause').textContent=PL.paused?'继续':'暂停';try{PL.paused?speechSynthesis.pause():speechSynthesis.resume()}catch(e){}}
 function plNext(){cancelAnimationFrame(PL.raf);chime(660,.4);plAdvance()}
 function plToggle(k){PL[k]=!PL[k];document.getElementById(k==='sound'?'plSound':'plVoice').classList.toggle('on',PL[k]);if(k==='voice'&&!PL.voice){try{speechSynthesis.cancel()}catch(e){}}}
 function closePlayer(){cancelAnimationFrame(PL.raf);clearTimeout(PL.adv);try{speechSynthesis.cancel()}catch(e){}document.getElementById('player').classList.remove('show')}
+
+/* ---------- 引导冥想:跟着声音静一静(复用跟练播放器引擎,零依赖) ---------- */
+/* 每段是一串 {t:屏上短句, say:完整引导语, sec:停留秒数};播放器自动推进+钟声+语音 */
+const MEDITATIONS={
+  calm:{emo:'🌿',name:'此刻安顿',mins:'约 1 分钟',desc:'忙乱时，快速把自己带回当下',
+    doneSub:'回来了，带着这份安顿继续',doneSay:'很好，带着这份安顿，继续你的一天',
+    steps:[
+      {t:'先坐稳，轻轻闭上眼睛',say:'找一个舒服的姿势坐稳，如果愿意，就轻轻闭上眼睛。',sec:12},
+      {t:'深深吸气……缓缓呼气',say:'跟着我，深深地吸一口气……再缓缓地、长长地，呼出去。',sec:16},
+      {t:'感受身体被稳稳托住',say:'感受椅子或地面，正稳稳地托着你。你不需要用力，只要被托住就好。',sec:15},
+      {t:'让此刻，就只是此刻',say:'放下刚才的事，也放下待会儿的事。让此刻，就只是此刻。',sec:14},
+      {t:'带着这份安顿慢慢回来',say:'好，带着这份安顿，慢慢睁开眼睛，回到这里。',sec:10},
+    ]},
+  breath:{emo:'🌬',name:'呼吸觉察',mins:'约 3 分钟',desc:'把注意力放回一呼一吸',
+    doneSub:'把这份平静，带回身体',doneSay:'慢慢动动手指，把这份平静带着，回到此刻',
+    steps:[
+      {t:'坐稳，把手放在腹部',say:'坐稳，把一只手轻轻放在腹部，准备好就闭上眼睛。',sec:15},
+      {t:'自然地呼吸，只是观察',say:'先不用刻意改变呼吸，只是观察空气进来，又出去。',sec:24},
+      {t:'吸气，感觉腹部鼓起',say:'吸气的时候，感觉手被腹部轻轻地推起来。',sec:24},
+      {t:'呼气，感觉腹部落下',say:'呼气的时候，感觉腹部慢慢落下，身体也松一点。',sec:24},
+      {t:'走神了，没关系',say:'如果发现自己走神了，没关系，那很正常。温柔地，把注意力带回呼吸就好。',sec:26},
+      {t:'再陪自己几次呼吸',say:'继续陪着自己，一呼，一吸，不急，也不赶。',sec:28},
+      {t:'慢慢把觉察带回身体',say:'很好，慢慢地，把这份觉察带回身体，准备好就睁开眼睛。',sec:15},
+    ]},
+  metta:{emo:'🤍',name:'慈心冥想',mins:'约 3 分钟',desc:'把善意，一圈圈送出去',
+    doneSub:'让这份温柔，留在心里',doneSay:'感受心口那份温暖，它一直都在。慢慢睁开眼睛吧',
+    steps:[
+      {t:'坐稳，把手放在心口',say:'坐稳，让呼吸慢下来，把手轻轻放在心口的位置。',sec:18},
+      {t:'先把善意送给自己',say:'在心里轻轻对自己说：愿我平安，愿我健康，愿我自在喜乐。',sec:28},
+      {t:'想起一个你爱的人',say:'想起一个你深爱的人，把同样的祝福送给他：愿你平安，愿你被好好爱着。',sec:28},
+      {t:'想起一个普通的人',say:'想起一个今天遇到的、普通的人，也送上祝福：愿你顺利，愿你安好。',sec:26},
+      {t:'想起一个让你为难的人',say:'如果可以，想起一个让你有点为难的人，试着说：愿你也能离苦，愿你也平安。',sec:28},
+      {t:'把祝福扩到所有生命',say:'最后，把这份善意扩大到天地间所有的生命：愿众生平安喜乐，离苦得乐。',sec:28},
+      {t:'让温柔留在心里',say:'感受心口那份温暖。慢慢睁开眼睛，把温柔带去你要去的地方。',sec:16},
+    ]},
+  sleep:{emo:'🌙',name:'睡前放松',mins:'约 5 分钟',desc:'从脚到头松下来，慢慢入睡',
+    doneSub:'就这样，慢慢沉入睡眠',doneSay:'就这样，一呼一吸，慢慢地沉入睡眠。晚安',
+    steps:[
+      {t:'躺好，让身体陷进床里',say:'躺下来，让整个身体陷进床里，盖好被子，准备好就闭上眼睛。',sec:20},
+      {t:'长长呼气，把今天放下',say:'深深吸一口气……再长长地呼出去，把今天所有的事，先放到一边。',sec:24},
+      {t:'放松你的脸和肩膀',say:'让眉心舒展，让下巴松开，让肩膀沉下去，离开耳朵。',sec:28},
+      {t:'放松手臂和双手',say:'感觉手臂越来越重，双手越来越松，像慢慢融化一样。',sec:28},
+      {t:'放松胸口和肚子',say:'呼吸越来越慢，胸口和肚子，随着呼吸轻轻起伏，很安全。',sec:28},
+      {t:'放松双腿和双脚',say:'让大腿、小腿，一直到脚尖，都放松下来，重重地，沉向床。',sec:28},
+      {t:'整个人被夜色温柔抱住',say:'现在，整个身体都松开了，被夜色温柔地，抱住。',sec:28},
+      {t:'不用努力，只是休息',say:'不用努力睡着，只要这样安静地休息，睡意会自己来。',sec:32},
+      {t:'慢慢，沉入睡眠',say:'就这样，一呼，一吸，慢慢地，慢慢地，沉入睡眠。',sec:38},
+    ]},
+};
+function renderMeditList(){
+  const el=document.getElementById('meditList');if(!el)return;
+  el.innerHTML=Object.keys(MEDITATIONS).map(k=>{const m=MEDITATIONS[k];
+    return `<button class="btn medit-item" onclick="startMeditation('${k}')" aria-label="开始${m.name}，${m.mins}">
+      <span class="mi-emo" aria-hidden="true">${m.emo}</span>
+      <span class="mi-txt"><b>${m.name}</b><small>${m.mins} · ${m.desc}</small></span>
+      <span class="mi-go" aria-hidden="true">▶</span></button>`;}).join('');
+}
+function startMeditation(k){
+  const m=MEDITATIONS[k];if(!m)return;
+  openPlayer(m.steps,{unit:'段',tail:'跟着呼吸，慢慢来',single:'跟着呼吸，慢慢来',aria:'引导冥想 · '+m.name,
+    log:'care',done:'愿你带着这份平静 🤍',doneSub:m.doneSub,doneSay:m.doneSay});
+}
 
 /* ---------- Ambient 音景:纯 Web Audio 实时合成,零文件 ---------- */
 window.Ambient=(()=>{
@@ -1686,7 +1763,7 @@ function renderWeekly(){
 }
 
 /* ---------- init ---------- */
-initDaily();renderBreathModes();renderAmbPills();renderMoodGrid();renderMoodLog();renderGratLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
+initDaily();renderBreathModes();renderAmbPills();renderMeditList();renderMoodGrid();renderMoodLog();renderGratLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
 /* 舒适阅读:整体字号三档(标准/大/特大),用 zoom 等比放大,守护看屏吃力的人 */
 const SCALE_LABELS=['A','A','A'],SCALE_CAP=['标准字号','大字号','特大字号'];
 function applyTextScale(){
