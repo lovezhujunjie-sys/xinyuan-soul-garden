@@ -126,6 +126,20 @@
     padding:16px;border-radius:16px;background:rgba(125,211,192,.08);border:1px solid rgba(125,211,192,.16);margin-bottom:12px}
   .ground-stage .gs-num{font-size:34px;font-weight:700;color:var(--accent2);display:block;margin-bottom:6px;letter-spacing:1px}
   .ground-stage .gs-text{font-size:15px;line-height:1.7;color:var(--text)}
+  /* 给未来的自己:时间胶囊信 */
+  .letter-arrive{border-color:rgba(255,196,150,.28);background:linear-gradient(160deg,rgba(255,196,150,.08),rgba(255,255,255,.04))}
+  .letter-body{font-size:15px;line-height:1.95;color:var(--text);padding:6px 2px 10px;word-break:break-word}
+  .letter-sign{color:var(--muted);font-size:13px;text-align:right;margin-bottom:14px}
+  .letter-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+  .letter-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;
+    background:rgba(255,255,255,.05);border:1px solid var(--card-br);font-size:13.5px;color:var(--muted)}
+  .letter-row .lr-main{flex:1;min-width:0}
+  .letter-row .lr-main b{color:var(--text);font-weight:600}
+  .letter-row .lr-open{cursor:pointer}
+  .letter-row .entry-del{flex:none}
+  .letter-row .lr-body{display:none;margin-top:8px;font-size:14px;line-height:1.85;color:var(--text);word-break:break-word}
+  .letter-row.expand{flex-wrap:wrap}
+  .letter-row.expand .lr-body{display:block;width:100%}
   .medit-list{display:flex;flex-direction:column;gap:10px}
   .medit-item{display:flex;align-items:center;gap:13px;text-align:left;padding:13px 16px;width:100%}
   .medit-item .mi-emo{font-size:24px;line-height:1;flex:none}
@@ -400,6 +414,7 @@
         <button class="btn" onclick="startSleepBreath()">开始安眠呼吸</button>
       </div>
     </div>
+    <div id="letterArrive" aria-live="polite"></div>
     <div class="card">
       <div class="section-title">此刻，你想被怎样对待？</div>
       <div class="row">
@@ -509,6 +524,14 @@
     <div class="card weekly" id="weeklyCard">
       <div class="section-title">本周回顾 · 只看见，不评判</div>
       <div id="weeklyBody"></div>
+    </div>
+    <div class="card letter-card">
+      <div class="section-title">💌 给未来的自己</div>
+      <div class="ground-intro">把此刻的心情、想对未来说的话，封进一封信。到了约定的那天，它会悄悄回到首页等你——那时的你，会想听听现在的你。</div>
+      <textarea id="letterText" maxlength="800" placeholder="亲爱的未来的我…"></textarea>
+      <div class="pill-row" id="letterWhen"></div>
+      <button class="btn primary full" onclick="saveLetter()">封存这封信 💌</button>
+      <div id="letterList" class="letter-list"></div>
     </div>
     <div class="card">
       <div class="section-title">点滴累积</div>
@@ -623,7 +646,7 @@ const DB = {
 };
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
 /* ---------- 数据备份:导出/导入(守护每个人的修行旅程) ---------- */
-const DB_KEYS=['mood','posts','gratitude','activity','favquotes'];
+const DB_KEYS=['mood','posts','gratitude','activity','favquotes','letters'];
 function exportData(){
   try{
     const data={};DB_KEYS.forEach(k=>{const v=localStorage.getItem('xy_'+k);if(v!=null)data[k]=JSON.parse(v)});
@@ -662,6 +685,7 @@ function go(v){
   if(v!=='breath'){Ambient.stop();renderAmbPills();stopBreath();}
   if(v!=='home'&&typeof stopMetta==='function')stopMetta();
   if(v!=='home'&&_reading){try{speechSynthesis.cancel()}catch(e){}setReadBtn(false);}
+  if(v==='home'&&typeof renderLetterArrive==='function')renderLetterArrive();
   if(v==='grow')renderGrow();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -1562,6 +1586,71 @@ function startMeditation(k){
     log:'care',done:'愿你带着这份平静 🤍',doneSub:m.doneSub,doneSay:m.doneSay});
 }
 
+/* ---------- 给未来的自己:时间胶囊信(看见自己的光·平安喜乐) ---------- */
+/* 封存的信在开启日前不可偷看——这份"等待"本身就是礼物;到期后温柔地出现在首页 */
+const LETTER_WAITS=[{d:7,t:'一周后'},{d:30,t:'一个月后'},{d:90,t:'三个月后'}];
+let letterWait=1;
+function letterDateStr(ms){const d=new Date(ms);return `${d.getMonth()+1}月${d.getDate()}日`}
+function renderLetterWhen(){
+  const el=document.getElementById('letterWhen');if(!el)return;
+  el.innerHTML=LETTER_WAITS.map((w,i)=>`<button class="pill ${i===letterWait?'on':''}" aria-pressed="${i===letterWait}" onclick="pickLetterWait(${i})">${w.t}</button>`).join('');
+}
+function pickLetterWait(i){letterWait=i;renderLetterWhen()}
+function saveLetter(){
+  const ta=document.getElementById('letterText');const text=ta.value.trim();
+  if(!text){toast('先写点什么给未来的自己吧 🌷');return}
+  const open=new Date();open.setDate(open.getDate()+LETTER_WAITS[letterWait].d);
+  const letters=DB.get('letters',[]);
+  letters.unshift({ts:Date.now(),openTs:open.getTime(),text,opened:false});
+  DB.set('letters',letters);
+  ta.value='';logActivity('letter');
+  renderLetterList();renderLetterArrive();
+  toast(`信已封存,${letterDateStr(open.getTime())}见 💌`);
+}
+function renderLetterArrive(){
+  const box=document.getElementById('letterArrive');if(!box)return;
+  const letters=DB.get('letters',[]);
+  const due=letters.filter(l=>!l.opened&&l.openTs<=Date.now());
+  if(!due.length){box.innerHTML='';return}
+  const l=due[due.length-1]; // 最早写下的那封先到
+  box.innerHTML=`<div class="card letter-arrive">
+    <div class="section-title">💌 一封来自过去的信</div>
+    <div class="ground-intro">${letterDateStr(l.ts)}的你,写了一封信给今天的你${due.length>1?`(后面还有 ${due.length-1} 封在路上)`:''}。</div>
+    <button class="btn primary full" onclick="openLetter(${l.ts})">拆开这封信</button></div>`;
+}
+function openLetter(ts){
+  const letters=DB.get('letters',[]);
+  const l=letters.find(x=>x.ts===ts);if(!l)return;
+  l.opened=true;l.openedTs=Date.now();DB.set('letters',letters);
+  const box=document.getElementById('letterArrive');if(!box)return;
+  box.innerHTML=`<div class="card letter-arrive">
+    <div class="section-title">💌 ${letterDateStr(l.ts)}的你说</div>
+    <div class="letter-body">${escapeHtml(l.text).replace(/\n/g,'<br>')}</div>
+    <div class="letter-sign">—— 那天的你 🤍</div>
+    <button class="btn full" onclick="renderLetterArrive()">收下了 🤍</button></div>`;
+  renderLetterList();
+}
+function renderLetterList(){
+  const el=document.getElementById('letterList');if(!el)return;
+  const letters=DB.get('letters',[]);
+  if(!letters.length){el.innerHTML='';return}
+  el.innerHTML=letters.map(l=>{
+    if(!l.opened)return `<div class="letter-row"><span aria-hidden="true">💌</span>
+      <span class="lr-main"><b>封存中</b> · ${letterDateStr(l.openTs)}开启,先不偷看哦</span>
+      <span class="entry-del" role="button" tabindex="0" aria-label="撤回这封信" onclick="delLetter(${l.ts})">×</span></div>`;
+    return `<div class="letter-row lr-open" onclick="this.classList.toggle('expand')">
+      <span aria-hidden="true">📖</span>
+      <span class="lr-main"><b>${letterDateStr(l.ts)}写下</b> · 已拆开,点开重温</span>
+      <span class="entry-del" role="button" tabindex="0" aria-label="删除这封信" onclick="event.stopPropagation();delLetter(${l.ts})">×</span>
+      <div class="lr-body">${escapeHtml(l.text).replace(/\n/g,'<br>')}</div></div>`;
+  }).join('');
+}
+function delLetter(ts){
+  if(!confirm('确定要放下这封信吗?'))return;
+  DB.set('letters',DB.get('letters',[]).filter(x=>x.ts!==ts));
+  renderLetterList();renderLetterArrive();toast('已轻轻放下 🍃');
+}
+
 /* ---------- Ambient 音景:纯 Web Audio 实时合成,零文件 ---------- */
 window.Ambient=(()=>{
   let ctx=null,master=null,cur=null,nodes=[],vol=0.5;const fadeT=0.8;
@@ -1763,7 +1852,7 @@ function renderWeekly(){
 }
 
 /* ---------- init ---------- */
-initDaily();renderBreathModes();renderAmbPills();renderMeditList();renderMoodGrid();renderMoodLog();renderGratLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
+initDaily();renderBreathModes();renderAmbPills();renderMeditList();renderLetterWhen();renderLetterList();renderLetterArrive();renderMoodGrid();renderMoodLog();renderGratLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
 /* 舒适阅读:整体字号三档(标准/大/特大),用 zoom 等比放大,守护看屏吃力的人 */
 const SCALE_LABELS=['A','A','A'],SCALE_CAP=['标准字号','大字号','特大字号'];
 function applyTextScale(){
