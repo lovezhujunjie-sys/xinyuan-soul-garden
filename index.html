@@ -126,6 +126,16 @@
     padding:16px;border-radius:16px;background:rgba(125,211,192,.08);border:1px solid rgba(125,211,192,.16);margin-bottom:12px}
   .ground-stage .gs-num{font-size:34px;font-weight:700;color:var(--accent2);display:block;margin-bottom:6px;letter-spacing:1px}
   .ground-stage .gs-text{font-size:15px;line-height:1.7;color:var(--text)}
+  /* 心灵电台 */
+  .radio-now{min-height:92px;display:flex;flex-direction:column;gap:7px;align-items:center;justify-content:center;text-align:center;
+    padding:18px 16px;border-radius:16px;background:rgba(159,122,234,.10);border:1px solid rgba(159,122,234,.22);margin-bottom:16px}
+  .rn-prog{font-size:12.5px;color:var(--accent2);letter-spacing:1px}
+  .rn-seg{font-size:16px;line-height:1.8;color:var(--text);font-weight:600;word-break:break-word}
+  .radio-ctrls{display:flex;gap:16px;justify-content:center;align-items:center;margin:4px 0 12px}
+  .r-main{width:92px;height:92px;border-radius:50%;font-size:34px;display:flex;align-items:center;justify-content:center;padding:0;flex:none}
+  .r-side{width:60px;height:60px;border-radius:50%;font-size:20px;display:flex;align-items:center;justify-content:center;padding:0;flex:none}
+  .radio-sub{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .medit-item.on{border-color:rgba(167,139,250,.55);background:rgba(167,139,250,.14)}
   /* 给未来的自己:时间胶囊信 */
   .letter-arrive{border-color:rgba(255,196,150,.28);background:linear-gradient(160deg,rgba(255,196,150,.08),rgba(255,255,255,.04))}
   .letter-body{font-size:15px;line-height:1.95;color:var(--text);padding:6px 2px 10px;word-break:break-word}
@@ -422,6 +432,7 @@
         <button class="btn" onclick="needCare('sleep')">😴 我睡不着</button>
         <button class="btn" onclick="needCare('stretch')">🌿 身体累了，想舒展</button>
         <button class="btn" onclick="go('mood')">📿 我想倾听自己</button>
+        <button class="btn" onclick="go('radio')">🎧 想听点什么陪着我</button>
         <button class="btn" onclick="go('community')">💞 我想被陪伴</button>
       </div>
       <button class="btn full" onclick="downloadApp()">⬇ 下载到本地 · 离线使用</button>
@@ -482,6 +493,46 @@
         <div class="gs-text">准备好了，就让身体慢慢沉进此刻。</div>
       </div>
       <button class="btn primary full" id="scanBtn" onclick="scanStep()">开始扫描</button>
+    </div>
+  </section>
+
+  <!-- ========== 心灵电台 ========== -->
+  <section class="view" id="view-radio">
+    <div class="card">
+      <div class="section-title">🎧 心灵电台 · 让声音陪着你</div>
+      <div class="ground-intro">开车、跑步、做家务,或只是想闭上眼睛——戴上耳机,选一个节目,心园轻轻读给你听;也可以只开背景音,让屋子里有一点温柔的声音。切到别的页面,电台也会一直陪着你。</div>
+      <div class="radio-now">
+        <div class="rn-prog" id="rnProg">还没有在播的节目</div>
+        <div class="rn-seg" id="rnSeg" aria-live="polite">从下面的节目单里,选一个吧 🌿</div>
+      </div>
+      <div class="radio-ctrls">
+        <button class="btn r-side" onclick="radioPrev()" aria-label="上一段">⏮</button>
+        <button class="btn primary r-main" id="rPlay" onclick="radioToggle()" aria-label="播放或暂停">▶</button>
+        <button class="btn r-side" onclick="radioNext()" aria-label="下一段">⏭</button>
+      </div>
+      <div class="radio-sub">
+        <span class="pl-tog on" id="rLoop" role="button" tabindex="0" aria-pressed="true" onclick="radioLoopToggle()">🔁 循环连播</span>
+        <span class="pl-tog" id="rWake" role="button" tabindex="0" aria-pressed="false" onclick="radioWakeToggle()">💡 保持亮屏</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">📻 节目单</div>
+      <div class="medit-list" id="radioList"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">🎵 背景音 · 也可以单独当音乐听</div>
+      <div class="ground-intro">两个新声音「风铃」「暖光」是心园自己实时演奏的疗愈音乐,永远不会重复。语音节目播着的时候,背景音会自动放轻,像电台的垫乐。</div>
+      <div class="pill-row" id="radioAmb"></div>
+      <div class="amb-vol">
+        <span>🔈</span>
+        <input type="range" min="0" max="1" step="0.01" value="0.5" oninput="Ambient.setVolume(this.value)" aria-label="背景音音量">
+        <span>🔊</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">🌙 定时关闭 · 听着睡着也没关系</div>
+      <div class="pill-row" id="radioTimer"></div>
+      <div class="care-note" style="margin-top:12px">📱 小提示:手机锁屏后,网页的声音可能会被系统暂停。开车/跑步时建议开上方「保持亮屏」、让心园留在前台;「添加到主屏幕」后会更稳。</div>
     </div>
   </section>
 
@@ -589,6 +640,7 @@
 <nav class="nav" id="nav">
   <button data-v="home" class="on" onclick="go('home')"><span class="ic">🏠</span>每日</button>
   <button data-v="breath" onclick="go('breath')"><span class="ic">🌬</span>呼吸</button>
+  <button data-v="radio" onclick="go('radio')"><span class="ic">🎧</span>电台</button>
   <button data-v="mood" onclick="go('mood')"><span class="ic">📿</span>心情</button>
   <button data-v="care" onclick="go('care')"><span class="ic">🌿</span>养护</button>
   <button data-v="grow" onclick="go('grow')"><span class="ic">🌱</span>成长</button>
@@ -682,7 +734,11 @@ function go(v){
   document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
-  if(v!=='breath'){Ambient.stop();renderAmbPills();stopBreath();}
+  if(v!=='breath')stopBreath();
+  /* 电台在播或电台开的背景音:切页不打断(像真音频App);否则离开呼吸页才停音景 */
+  if(v!=='breath'&&v!=='radio'&&!RADIO.on&&!RADIO.ambHold)Ambient.stop();
+  renderAmbPills();
+  if(v==='radio')renderRadioAmb();
   if(v!=='home'&&typeof stopMetta==='function')stopMetta();
   if(v!=='home'&&_reading){try{speechSynthesis.cancel()}catch(e){}setReadBtn(false);}
   if(v==='home'&&typeof renderLetterArrive==='function')renderLetterArrive();
@@ -766,6 +822,7 @@ let _reading=false;
 function setReadBtn(on){_reading=on;const b=document.getElementById('readBtn');if(b){b.textContent=on?'⏹ 停止朗读':'🔊 读给我听';b.setAttribute('aria-pressed',on?'true':'false');}}
 function readQuote(){
   if(!('speechSynthesis'in window)){toast('这台设备暂不支持朗读 🌿');return}
+  if(typeof RADIO!=='undefined'&&RADIO.on)radioStop();
   if(_reading){try{speechSynthesis.cancel()}catch(e){}setReadBtn(false);return}
   const q=curQuote();if(!q.t)return;
   try{
@@ -1489,7 +1546,9 @@ function setRing(frac){document.getElementById('plRing').style.strokeDashoffset=
 function playOne(cat,i){openPlayer([CARE[cat].items[i]])}
 function startCareSeq(cat){openPlayer(CARE[cat].items.filter(x=>x.sec))}
 function openPlayer(list,opts){
-  if(!list.length)return;PL.list=list;PL.idx=0;PL.paused=false;
+  if(!list.length)return;
+  if(typeof RADIO!=='undefined'&&RADIO.on){radioStop();toast('电台先休息一下,跟练结束再回来 🌿');}
+  PL.list=list;PL.idx=0;PL.paused=false;
   PL.opts=Object.assign({},PL_DEFAULT,opts||{});
   const pl=document.getElementById('player');pl.classList.add('show');pl.setAttribute('aria-label',PL.opts.aria);
   plAudio();runStep();
@@ -1651,9 +1710,183 @@ function delLetter(ts){
   renderLetterList();renderLetterArrive();toast('已轻轻放下 🍃');
 }
 
+/* ========== 心灵电台:像音频平台一样连续听,全部自产+公版内容,零依赖离线可用 ========== */
+/* 节目=一串 {t:屏显, say:朗读文本};语音自动连播,切页不停;背景音自动闪避(Ambient.duck) */
+const R_GOODNIGHT=[
+  {t:'欢迎来到心园晚安电台',say:'这里是心园晚安电台。现在,请把手机放在一边,找一个最舒服的姿势。我们一起,把今天轻轻放下。'},
+  {t:'今天辛苦了',say:'今天辛苦了。不管这一天过得顺利还是狼狈,你都已经尽力了。此刻,什么都不用再做。'},
+  {t:'深深吸气,长长呼气',say:'深深地吸一口气……再长长地呼出去。让肩膀沉下来,让眉头松开,让牙关轻轻分开。'},
+  {t:'想一个今天的好瞬间',say:'回想今天,也许有一个瞬间是好的。一口热饭,一阵凉风,一句问候。把它放在心口,谢谢它来过。'},
+  {t:'没做完的事,先放进抽屉',say:'那些没做完的事,先放进抽屉里。明天的你会接着照顾它们。今晚,它们不许打扰你。'},
+  {t:'你不需要解决一切,才配休息',say:'如果有委屈,允许它在。如果有牵挂,祝它安好。你不需要解决一切,才配休息。'},
+  {t:'听着自己的呼吸',say:'听着自己的呼吸,一下,又一下。像海浪,像摇篮,像很多年前,有人轻轻拍着你。'},
+  {t:'身体越来越重,越来越暖',say:'身体越来越重,越来越暖。床稳稳地托着你,夜色温柔地盖着你。'},
+  {t:'愿你梦里有花,有光',say:'愿你梦里有花,有光,有想见的人。愿你醒来时,心是轻的。'},
+  {t:'晚安,明天见',say:'晚安。心园在这里,明天见。'},
+];
+const R_DAODEJING=[
+  {t:'第八章 · 上善若水',say:'道德经,第八章。上善若水。水善利万物而不争,处众人之所恶,故几于道。夫唯不争,故无尤。意思是说:像水一样活着。滋养万物,却不去争抢;愿意待在低处,所以最接近道。正因为不争,反而没有烦恼。'},
+  {t:'第十六章 · 致虚极,守静笃',say:'道德经,第十六章。致虚极,守静笃。万物并作,吾以观复。归根曰静,静曰复命。意思是说:让心安静到极处,看万物生长,又看它们回归。回到根处就是静。静,就是回到生命本来的样子。'},
+  {t:'第三十三章 · 自知者明',say:'道德经,第三十三章。知人者智,自知者明。胜人者有力,自胜者强。知足者富,强行者有志。意思是说:看懂别人是聪明,看懂自己才是真正的明亮。赢过别人是有力气,赢过自己,才是真正的强大。知道满足的人,最富有。'},
+  {t:'第四十四章 · 知足不辱',say:'道德经,第四十四章。名与身孰亲?身与货孰多?得与亡孰病?知足不辱,知止不殆,可以长久。意思是说:名声和健康,哪个更亲?钱财和自己,哪个更重要?懂得满足就不受辱,懂得停下就不危险,这样才能长长久久。'},
+  {t:'第七十六章 · 柔弱者生之徒',say:'道德经,第七十六章。人之生也柔弱,其死也坚强。万物草木之生也柔脆,其死也枯槁。故坚强者死之徒,柔弱者生之徒。意思是说:活着的东西,都是柔软的。柔软不是软弱,是生命力本身。愿你柔软,而有力量。'},
+];
+const R_POEMS=[
+  {t:'王维 · 鸟鸣涧',say:'鸟鸣涧,唐,王维。人闲桂花落,夜静春山空。月出惊山鸟,时鸣春涧中。心安静下来,才听得见花落的声音。'},
+  {t:'王维 · 竹里馆',say:'竹里馆,唐,王维。独坐幽篁里,弹琴复长啸。深林人不知,明月来相照。一个人的时候,也有月亮陪着你。'},
+  {t:'陶渊明 · 饮酒(其五)',say:'饮酒,其五,晋,陶渊明。结庐在人境,而无车马喧。问君何能尔,心远地自偏。采菊东篱下,悠然见南山。山气日夕佳,飞鸟相与还。此中有真意,欲辨已忘言。心远了,哪里都是山水。'},
+  {t:'苏轼 · 定风波',say:'定风波,宋,苏轼。莫听穿林打叶声,何妨吟啸且徐行。竹杖芒鞋轻胜马,谁怕?一蓑烟雨任平生。料峭春风吹酒醒,微冷,山头斜照却相迎。回首向来萧瑟处,归去,也无风雨也无晴。风雨打过来的时候,慢慢走,也可以。'},
+  {t:'李白 · 独坐敬亭山',say:'独坐敬亭山,唐,李白。众鸟高飞尽,孤云独去闲。相看两不厌,只有敬亭山。孤独的时候,天地仍与你相看两不厌。'},
+  {t:'孟浩然 · 宿建德江',say:'宿建德江,唐,孟浩然。移舟泊烟渚,日暮客愁新。野旷天低树,江清月近人。愁绪里,月亮悄悄靠近了人。'},
+];
+const RADIO_PROGRAMS=[
+  {key:'goodnight',emo:'🌙',name:'晚安电台',desc:'约5分钟 · 把今天轻轻放下',build:()=>R_GOODNIGHT.slice()},
+  {key:'quotes',emo:'✨',name:'心语精选',desc:'60句温柔心语 · 随机连播',build:()=>{
+    const q=QUOTES.slice();for(let i=q.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[q[i],q[j]]=[q[j],q[i]];}
+    return q.map(x=>({t:x[0],say:x[0]+(x[1]&&x[1].indexOf('心园')<0?('。出自,'+x[1].replace(/^[—\s]+/,'')):'')}));}},
+  {key:'daodejing',emo:'📜',name:'道德经 · 安心五章',desc:'原文+白话 · 古人的安心智慧',build:()=>R_DAODEJING.slice()},
+  {key:'poems',emo:'🏞',name:'诗意栖居',desc:'六首治愈古诗 · 听见山水',build:()=>R_POEMS.slice()},
+  {key:'bless',emo:'🤍',name:'慈心祝福电台',desc:'一句句祝福 · 送给你也送给世界',build:()=>METTA.map(t=>({t,say:t})).concat(RECEIVE_BLESS.map(t=>({t,say:t})))},
+];
+const RADIO={on:false,playing:false,prog:null,segs:[],idx:0,loop:true,u:null,gapT:0,timerT:0,timerM:0,wake:null,wakeOn:false,ambHold:false,anchor:null};
+function radioAnchorPlay(){
+  try{
+    if(!RADIO.anchor){
+      /* 0.25s 静音 wav 循环:撑住系统音频会话,让锁屏媒体键有处可挂 */
+      const n=2000,h=[82,73,70,70];let bytes=new Uint8Array(44+n);
+      const wr=(o,s)=>{for(let i=0;i<s.length;i++)bytes[o+i]=s.charCodeAt(i)};
+      const u32=(o,v)=>{bytes[o]=v&255;bytes[o+1]=(v>>8)&255;bytes[o+2]=(v>>16)&255;bytes[o+3]=(v>>24)&255};
+      const u16=(o,v)=>{bytes[o]=v&255;bytes[o+1]=(v>>8)&255};
+      wr(0,'RIFF');u32(4,36+n);wr(8,'WAVE');wr(12,'fmt ');u32(16,16);u16(20,1);u16(22,1);u32(24,8000);u32(28,8000);u16(32,1);u16(34,8);wr(36,'data');u32(40,n);
+      for(let i=0;i<n;i++)bytes[44+i]=128;
+      const a=new Audio(URL.createObjectURL(new Blob([bytes],{type:'audio/wav'})));
+      a.loop=true;a.volume=0.01;RADIO.anchor=a;
+    }
+    RADIO.anchor.play().catch(()=>{});
+  }catch(e){}
+}
+function radioMedia(segTitle){
+  try{if(!('mediaSession'in navigator))return;
+    navigator.mediaSession.metadata=new MediaMetadata({title:segTitle||'心灵电台',artist:'心园 · 愿你平安喜乐',album:RADIO.prog?RADIO.prog.name:'心灵电台'});
+    navigator.mediaSession.setActionHandler('play',()=>radioToggle());
+    navigator.mediaSession.setActionHandler('pause',()=>radioToggle());
+    navigator.mediaSession.setActionHandler('nexttrack',()=>radioNext());
+    navigator.mediaSession.setActionHandler('previoustrack',()=>radioPrev());
+  }catch(e){}
+}
+function renderRadioList(){
+  const el=document.getElementById('radioList');if(!el)return;
+  el.innerHTML=RADIO_PROGRAMS.map(p=>`<button class="btn medit-item ${RADIO.on&&RADIO.prog&&RADIO.prog.key===p.key?'on':''}" onclick="radioStart('${p.key}')" aria-label="播放${p.name}">
+    <span class="mi-emo" aria-hidden="true">${p.emo}</span>
+    <span class="mi-txt"><b>${p.name}</b><small>${p.desc}</small></span>
+    <span class="mi-go" aria-hidden="true">${RADIO.on&&RADIO.prog&&RADIO.prog.key===p.key?'♪':'▶'}</span></button>`).join('');
+}
+function radioStart(key){
+  const P=RADIO_PROGRAMS.find(p=>p.key===key);if(!P)return;
+  try{speechSynthesis.cancel()}catch(e){}
+  clearTimeout(RADIO.gapT);RADIO.u=null;
+  RADIO.prog=P;RADIO.segs=P.build();RADIO.idx=0;RADIO.on=true;RADIO.playing=true;
+  Ambient.duck(true);radioAnchorPlay();
+  radioPlaySeg();renderRadioList();
+}
+function radioPlaySeg(){
+  const s=RADIO.segs[RADIO.idx];if(!s){radioFinish();return}
+  const pr=document.getElementById('rnProg'),sg=document.getElementById('rnSeg'),pb=document.getElementById('rPlay');
+  if(pr)pr.textContent=`${RADIO.prog.emo} ${RADIO.prog.name} · 第 ${RADIO.idx+1} / ${RADIO.segs.length} 段`;
+  if(sg)sg.textContent=s.t;
+  if(pb)pb.textContent='⏸';
+  radioMedia(s.t);
+  if(!('speechSynthesis'in window)){if(sg)sg.textContent='这台设备暂不支持语音朗读,可以听听下面的背景音 🌿';RADIO.on=false;return}
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(s.say);
+    u.lang='zh-CN';u.rate=.86;u.pitch=1;RADIO.u=u;
+    const done=()=>{if(RADIO.u!==u||!RADIO.on||!RADIO.playing)return;RADIO.gapT=setTimeout(radioAdvance,1700);};
+    u.onend=done;u.onerror=done;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function radioAdvance(){
+  RADIO.idx++;
+  if(RADIO.idx>=RADIO.segs.length){
+    logActivity('listen');
+    if(RADIO.loop){RADIO.segs=RADIO.prog.build();RADIO.idx=0;}
+    else{radioFinish();return}
+  }
+  radioPlaySeg();
+}
+function radioFinish(){
+  RADIO.playing=false;RADIO.u=null;
+  const sg=document.getElementById('rnSeg'),pb=document.getElementById('rPlay');
+  if(sg)sg.textContent='节目播完了,愿这些声音留在心里 🤍';
+  if(pb)pb.textContent='▶';
+  Ambient.duck(false);
+}
+function radioToggle(){
+  if(!RADIO.on||!RADIO.prog){toast('先从节目单里选一个节目吧 🌿');return}
+  const pb=document.getElementById('rPlay');
+  if(RADIO.playing){ /* 暂停:取消当前句,记住位置(段级暂停,移动端最稳) */
+    RADIO.playing=false;RADIO.u=null;clearTimeout(RADIO.gapT);
+    try{speechSynthesis.cancel()}catch(e){}
+    if(pb)pb.textContent='▶';
+    try{navigator.mediaSession.playbackState='paused'}catch(e){}
+  }else{
+    RADIO.playing=true;radioAnchorPlay();radioPlaySeg();
+    try{navigator.mediaSession.playbackState='playing'}catch(e){}
+  }
+}
+function radioNext(){if(!RADIO.on)return;RADIO.u=null;clearTimeout(RADIO.gapT);try{speechSynthesis.cancel()}catch(e){}RADIO.playing=true;radioAdvance();}
+function radioPrev(){if(!RADIO.on)return;RADIO.u=null;clearTimeout(RADIO.gapT);try{speechSynthesis.cancel()}catch(e){}RADIO.playing=true;RADIO.idx=Math.max(-1,RADIO.idx-2);radioAdvance();}
+function radioStop(){
+  RADIO.on=false;RADIO.playing=false;RADIO.u=null;clearTimeout(RADIO.gapT);
+  try{speechSynthesis.cancel()}catch(e){}
+  try{if(RADIO.anchor)RADIO.anchor.pause()}catch(e){}
+  Ambient.duck(false);
+  const pr=document.getElementById('rnProg'),sg=document.getElementById('rnSeg'),pb=document.getElementById('rPlay');
+  if(pr)pr.textContent='还没有在播的节目';
+  if(sg)sg.textContent='从下面的节目单里,选一个吧 🌿';
+  if(pb)pb.textContent='▶';
+  renderRadioList();
+}
+function radioLoopToggle(){RADIO.loop=!RADIO.loop;const el=document.getElementById('rLoop');if(el){el.classList.toggle('on',RADIO.loop);el.setAttribute('aria-pressed',RADIO.loop)}}
+async function radioWakeToggle(){
+  const el=document.getElementById('rWake');
+  if(RADIO.wakeOn){try{RADIO.wake&&RADIO.wake.release()}catch(e){}RADIO.wake=null;RADIO.wakeOn=false;}
+  else{
+    if(!('wakeLock'in navigator)){toast('这台设备的浏览器不支持保持亮屏 🌿');return}
+    try{RADIO.wake=await navigator.wakeLock.request('screen');RADIO.wakeOn=true;toast('屏幕会一直亮着陪你 💡');}
+    catch(e){toast('没能保持亮屏,可在系统设置里调长自动锁屏 🌿');return}
+  }
+  if(el){el.classList.toggle('on',RADIO.wakeOn);el.setAttribute('aria-pressed',RADIO.wakeOn)}
+}
+document.addEventListener('visibilitychange',async()=>{
+  if(RADIO.wakeOn&&document.visibilityState==='visible'){try{RADIO.wake=await navigator.wakeLock.request('screen')}catch(e){}}
+});
+const RADIO_TIMERS=[{m:0,t:'不定时'},{m:15,t:'15分钟'},{m:30,t:'30分钟'},{m:60,t:'60分钟'}];
+function renderRadioTimer(){
+  const el=document.getElementById('radioTimer');if(!el)return;
+  el.innerHTML=RADIO_TIMERS.map(x=>`<button class="pill ${RADIO.timerM===x.m?'on':''}" aria-pressed="${RADIO.timerM===x.m}" onclick="radioTimerPick(${x.m})">${x.t}</button>`).join('');
+}
+function radioTimerPick(m){
+  clearTimeout(RADIO.timerT);RADIO.timerM=m;
+  if(m){RADIO.timerT=setTimeout(()=>{radioStop();Ambient.stop();RADIO.ambHold=false;RADIO.timerM=0;renderRadioTimer();renderRadioAmb();toast('到时间啦,晚安 🌙');},m*60000);toast(`${m}分钟后会轻轻关掉,放心听 🌙`);}
+  renderRadioTimer();
+}
+function renderRadioAmb(){
+  const el=document.getElementById('radioAmb');if(!el)return;
+  const on=Ambient.current();
+  el.innerHTML=`<button class="pill ${!on?'on':''}" onclick="radioAmbPick('none')">🤫 安静</button>`+
+    Ambient.list.map(a=>`<button class="pill ${a.key===on?'on':''}" onclick="radioAmbPick('${a.key}')">${a.emoji} ${a.label}</button>`).join('');
+}
+function radioAmbPick(key){
+  if(key==='none'){Ambient.stop();RADIO.ambHold=false;}
+  else{const was=Ambient.current();Ambient.play(key);RADIO.ambHold=(was!==key);if(RADIO.on&&RADIO.playing)Ambient.duck(true);}
+  renderRadioAmb();setTimeout(renderRadioAmb,500);
+}
+
 /* ---------- Ambient 音景:纯 Web Audio 实时合成,零文件 ---------- */
 window.Ambient=(()=>{
-  let ctx=null,master=null,cur=null,nodes=[],vol=0.5;const fadeT=0.8;
+  let ctx=null,master=null,cur=null,nodes=[],vol=0.5,duckF=1;const fadeT=0.8;
   const AC=window.AudioContext||window.webkitAudioContext;
   const ensure=()=>{if(!AC)return null;if(!ctx){ctx=new AC();master=ctx.createGain();master.gain.value=vol;master.connect(ctx.destination);}return ctx;};
   const noiseBuf=(sec=4,pink=false)=>{
@@ -1685,6 +1918,36 @@ window.Ambient=(()=>{
       const g=track(ctx.createGain());g.gain.value=0.5;src.connect(bp);bp.connect(g);src.start();
       const t=setInterval(()=>{try{bp.frequency.setTargetAtTime(350+Math.random()*900,now(),2.5);g.gain.setTargetAtTime(0.3+Math.random()*0.5,now(),2);}catch(e){}},3000);
       return {in:g,stop(){clearInterval(t);try{src.stop()}catch(e){}}};},
+    /* 风铃曲:五声音阶随机铃音+回声,生成式疗愈音乐,永不重复 */
+    chimes(){const out=track(ctx.createGain());out.gain.value=0.8;
+      const dly=track(ctx.createDelay(1));dly.delayTime.value=0.42;
+      const fb=track(ctx.createGain());fb.gain.value=0.38;
+      const wet=track(ctx.createGain());wet.gain.value=0.5;
+      dly.connect(fb);fb.connect(dly);dly.connect(wet);wet.connect(out);
+      const scale=[261.63,293.66,329.63,392,440,523.25,587.33,659.25,784,880];
+      const ring=()=>{try{const f=scale[Math.floor(Math.random()*scale.length)];
+        const o=ctx.createOscillator(),o2=ctx.createOscillator(),g=ctx.createGain(),g2=ctx.createGain();
+        o.type='sine';o.frequency.value=f;o2.type='sine';o2.frequency.value=f*2.01;g2.gain.value=0.22;
+        o.connect(g);o2.connect(g2);g2.connect(g);g.connect(out);g.connect(dly);
+        const t0=now();g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(0.3,t0+0.02);g.gain.exponentialRampToValueAtTime(0.0006,t0+4.5);
+        o.start(t0);o.stop(t0+5);o2.start(t0);o2.stop(t0+5);}catch(e){}};
+      ring();let t=0;const loop=()=>{t=setTimeout(()=>{ring();if(Math.random()<.3)setTimeout(ring,180+Math.random()*260);loop();},900+Math.random()*2600);};loop();
+      return {in:out,stop(){clearTimeout(t)}};},
+    /* 暖光琴垫:缓慢流转的和弦垫,温暖铺底 */
+    glow(){const out=track(ctx.createGain());out.gain.value=0.55;
+      const lp=track(ctx.createBiquadFilter());lp.type='lowpass';lp.frequency.value=900;lp.Q.value=0.4;lp.connect(out);
+      const lfo=track(ctx.createOscillator());lfo.frequency.value=0.07;
+      const lg=track(ctx.createGain());lg.gain.value=240;lfo.connect(lg);lg.connect(lp.frequency);lfo.start();
+      const chords=[[130.81,196,261.63,329.63],[110,164.81,220,261.63],[146.83,220,293.66,349.23],[98,146.83,196,246.94]];
+      let ci=0,osc=[];
+      const setChord=(arr,first)=>{
+        osc.forEach(o=>{try{o.g.gain.setTargetAtTime(0.0001,now(),1.8);o.o.stop(now()+5)}catch(e){}});osc=[];
+        arr.forEach((f,i)=>{try{const o=ctx.createOscillator();o.type=i<2?'sine':'triangle';o.frequency.value=f*(1+(Math.random()-.5)*0.002);
+          const g=ctx.createGain();g.gain.value=0.0001;o.connect(g);g.connect(lp);o.start();
+          g.gain.setTargetAtTime(0.16-i*0.025,now()+(first?0:1.2),2.5);osc.push({o,g});}catch(e){}});};
+      setChord(chords[0],true);
+      const t=setInterval(()=>{ci=(ci+1)%chords.length;setChord(chords[ci]);},19000);
+      return {in:out,stop(){clearInterval(t);osc.forEach(o=>{try{o.o.stop()}catch(e){}})}};},
     bowl(){const out=track(ctx.createGain());out.gain.value=0.9;
       const strike=()=>{try{const base=174+Math.random()*40,harm=[1,2.0,2.76,5.4],ga=[1,0.45,0.3,0.15];
         const hit=ctx.createGain();hit.gain.value=0;hit.connect(out);const t0=now();
@@ -1700,9 +1963,10 @@ window.Ambient=(()=>{
     if(b){try{b.in.gain.setTargetAtTime(0.0001,now(),fadeT/3)}catch(e){}}
     setTimeout(()=>{if(b){try{b.stop()}catch(e){}}old.forEach(n=>{try{n.disconnect&&n.disconnect()}catch(e){}try{n.stop&&n.stop()}catch(e){}});},fadeT*1000+120);};
   return {
-    list:[{key:'rain',label:'雨声',emoji:'🌧'},{key:'waves',label:'海浪',emoji:'🌊'},{key:'wind',label:'风声',emoji:'🍃'},{key:'bowl',label:'颂钵',emoji:'🔔'}],
+    list:[{key:'rain',label:'雨声',emoji:'🌧'},{key:'waves',label:'海浪',emoji:'🌊'},{key:'wind',label:'风声',emoji:'🍃'},{key:'bowl',label:'颂钵',emoji:'🔔'},{key:'chimes',label:'风铃',emoji:'🎐'},{key:'glow',label:'暖光',emoji:'🌅'}],
     current(){return cur&&cur.key||null},
-    setVolume(v){vol=Math.max(0,Math.min(1,+v||0));try{if(master)master.gain.setTargetAtTime(vol,now(),0.1)}catch(e){}},
+    setVolume(v){vol=Math.max(0,Math.min(1,+v||0));try{if(master)master.gain.setTargetAtTime(vol*duckF,now(),0.1)}catch(e){}},
+    duck(d){duckF=d?0.32:1;try{if(master)master.gain.setTargetAtTime(vol*duckF,now(),0.6)}catch(e){}},
     play(key){try{if(!ensure()||!builders[key])return;if(ctx.state==='suspended')ctx.resume();
       if(cur&&cur.key===key){this.stop();return;}
       const wasPlaying=!!cur;if(wasPlaying)teardown();
@@ -1852,7 +2116,7 @@ function renderWeekly(){
 }
 
 /* ---------- init ---------- */
-initDaily();renderBreathModes();renderAmbPills();renderMeditList();renderLetterWhen();renderLetterList();renderLetterArrive();renderMoodGrid();renderMoodLog();renderGratLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
+initDaily();renderBreathModes();renderAmbPills();renderMeditList();renderRadioList();renderRadioAmb();renderRadioTimer();renderLetterWhen();renderLetterList();renderLetterArrive();renderMoodGrid();renderMoodLog();renderGratLog();renderTagRow();renderFeed();renderCareTabs();renderCareBody();
 /* 舒适阅读:整体字号三档(标准/大/特大),用 zoom 等比放大,守护看屏吃力的人 */
 const SCALE_LABELS=['A','A','A'],SCALE_CAP=['标准字号','大字号','特大字号'];
 function applyTextScale(){
